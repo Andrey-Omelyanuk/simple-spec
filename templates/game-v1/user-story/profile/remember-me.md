@@ -1,6 +1,6 @@
-## Чтобы сайт меня узнавал
-**Кто:** игрок, возвращающийся на сайт
-**Что хочет:** чтобы сайт узнавал его и не просил представляться заново
-**Зачем:** не начинать каждый раз с чистого листа и оставаться одной и той же личностью
+## So the site recognizes me
+**Who:** a player returning to the site
+**Wants:** the site to recognize them and not ask them to introduce themselves again
+**Why:** not to start from scratch every time and to remain the same identity
 
-Один раз представился, через неделю заходишь — сайт здоровается по имени, и всё, что было до этого, на месте.
+You introduce yourself once, come back a week later — the site greets you by name, and everything from before is still there.

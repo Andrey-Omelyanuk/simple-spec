@@ -1,19 +1,19 @@
-# Глоссарий
+# Glossary
 
-**Игрок** — человек, играющий в пинг-понг на сайте. Может быть знаком сайту по имени или зайти впервые.
+**Player** — a person playing ping-pong on the site. May be known to the site by name or be visiting for the first time.
 
-**Имя** — как сайт называет игрока. Игрок задаёт его сам и может изменить.
+**Name** — how the site refers to the player. The player sets it themselves and can change it.
 
-**Партия** — один раунд игры от начала до победы одной из сторон.
+**Match** — one round of the game from the start to one side's victory.
 
-**Ракетка** — то, чем игрок отбивает мяч. Управляется клавишами.
+**Paddle** — what the player uses to hit the ball. Controlled by keys.
 
-**Мяч** — то, что летает между ракетками.
+**Ball** — what flies between the paddles.
 
-**Очко** — единица счёта; начисляется, когда соперник промахнулся.
+**Point** — a unit of score; awarded when the opponent misses.
 
-**Счёт** — текущее или итоговое соотношение очков в партии.
+**Score** — the current or final ratio of points in a match.
 
-**История** — список прошлых партий игрока с их результатами.
+**History** — the list of the player's past matches with their results.
 
-**Пауза** — временная остановка партии без потери текущего состояния.
+**Pause** — a temporary stop of a match without losing the current state.

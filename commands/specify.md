@@ -1,6 +1,6 @@
-### think 
+### specify
 
-The `think` mode feeds into the spec through interactive dialogue with AI:
+The `specify` mode feeds into the spec through interactive dialogue with AI:
 
 - Requirements and project goals gathering
 - Architecture and approach discussion

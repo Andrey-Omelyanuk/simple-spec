@@ -1,6 +1,6 @@
-## Поставить партию на паузу
-**Кто:** игрок в середине партии
-**Что хочет:** временно остановить игру и продолжить с того же момента
-**Зачем:** не проиграть из-за того, что отвлекли
+## Pause a match
+**Who:** a player in the middle of a match
+**Wants:** to temporarily stop the game and resume from the same moment
+**Why:** not to lose because of being distracted
 
-Звонок, пришёл коллега, кот прыгнул на клавиатуру — хочется нажать «пауза», разобраться и вернуться к мячу там же, где был.
+A phone call, a colleague stopped by, the cat jumped on the keyboard — you want to hit "pause", deal with it, and come back to the ball where you left it.

@@ -1,5 +1,5 @@
 
-- переименовать simple-spec в simple-story?
+- rename simple-spec to simple-story?
 
 
 - user-story -> spec -> todo -> code
@@ -7,4 +7,4 @@
     - spec
     - todo
     - code
-Note: code это не только написание кода, может быть что угодно, но конечный результат
+Note: code is not only writing code, it can be anything, but the final result

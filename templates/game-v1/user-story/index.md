@@ -1,14 +1,14 @@
 # User Stories
 
-## профиль
-- [Чтобы сайт меня узнавал](profile/remember-me.md)
-- [Сменить имя](profile/rename-me.md)
+## profile
+- [So the site recognizes me](profile/remember-me.md)
+- [Change my name](profile/rename-me.md)
 
-## игра
-- [Сыграть партию в пинг-понг](game/play-match.md)
-- [Поставить партию на паузу](game/pause-match.md)
-- [Поиграть с другом за одной клавиатурой](game/play-with-friend.md)
+## game
+- [Play a ping-pong match](game/play-match.md)
+- [Pause a match](game/pause-match.md)
+- [Play with a friend on one keyboard](game/play-with-friend.md)
 
-## статистика
-- [Посмотреть свою статистику](statistic/my-stats.md)
-- [Начать статистику с нуля](statistic/reset-stats.md)
+## statistic
+- [View my stats](statistic/my-stats.md)
+- [Reset stats from scratch](statistic/reset-stats.md)

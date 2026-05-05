@@ -1,6 +1,6 @@
-## Посмотреть свою статистику
-**Кто:** игрок
-**Что хочет:** видеть, как у него идут дела в игре — сыгранные партии и общий итог
-**Зачем:** отслеживать прогресс и понимать, улучшается ли он
+## View my stats
+**Who:** a player
+**Wants:** to see how they are doing in the game — matches played and the overall outcome
+**Why:** to track progress and understand whether they are improving
 
-Заходишь после недели игр — хочется увидеть «как я в целом»: сколько раз выиграл, какие были последние партии, был ли разгромный счёт.
+You come back after a week of playing — you want to see "how I'm doing overall": how many wins, what the recent matches were, whether there was a blowout score.

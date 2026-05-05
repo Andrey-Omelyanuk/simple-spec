@@ -1,6 +1,6 @@
-## Начать статистику с нуля
-**Кто:** игрок с накопленной историей
-**Что хочет:** сбросить свою статистику и начать с чистого листа
-**Зачем:** чтобы старые провалы не давили и можно было заново ловить прогресс
+## Reset stats from scratch
+**Who:** a player with accumulated history
+**Wants:** to reset their stats and start with a clean slate
+**Why:** so old failures don't weigh on them and they can chase progress anew
 
-Месяц назад играл вяло, накопил кучу поражений. Натренировался — хочется чистого старта без груза прошлого.
+A month ago I played sluggishly, racked up a pile of losses. I've trained up — I want a clean start without the burden of the past.

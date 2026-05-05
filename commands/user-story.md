@@ -1,84 +1,84 @@
 # User Story
 
-User story — короткая история от лица пользователя, описывающая один сценарий использования. Это **главный источник правды** и обязательная точка входа для любого нового поведения системы. Хранятся в `user-story/` в корне приложения.
+A user story is a short story from the user's perspective describing one usage scenario. It is the **main source of truth** and the mandatory entry point for any new system behavior. Stored in `user-story/` at the root of the application.
 
-Формат намеренно минимален: его должен суметь написать любой взрослый человек, а не только продакт или аналитик.
+The format is intentionally minimal: any adult should be able to write one, not only a product manager or analyst.
 
-## Формат
+## Format
 
 ```markdown
-## [Название истории]
-**Кто:** [роль или ситуация пользователя]
-**Что хочет:** [действие или результат]
-**Зачем:** [какую пользу получает]
+## [Story title]
+**Who:** [user role or situation]
+**Wants:** [action or outcome]
+**Why:** [what benefit they get]
 
-[Опционально: примеры в свободной форме — как это бывает в жизни]
+[Optional: free-form examples — how it happens in real life]
 ```
 
-Три строки обязательны. Примеры по желанию.
+The three lines are mandatory. Examples are optional.
 
-## Что запрещено в story
+## What is forbidden in a story
 
-Это не «можно, но не желательно» — это жёсткие границы формата. Всё перечисленное ниже относится к другим артефактам (`spec.md`, `agent.md`, `todo.md`), не к story.
+This is not "allowed but undesirable" — these are hard format boundaries. Everything listed below belongs to other artifacts (`spec.md`, `agent.md`, `todo.md`), not to a story.
 
-- **Без технологий.** Не «через REST», не «на React», не «в Postgres». Технологии — забота `agent.md`.
-- **Без размытых слов.** «Удобно», «быстро», «современно», «интуитивно» — выкинуть или переформулировать в наблюдаемое («работает на телефоне», «открывается без перезагрузки страницы»).
-- **Без критериев готовности, чек-листов, given/when/then.** Story описывает желание, а не приёмку. Детализация поведения происходит при `/specify`.
-- **Одна story = одно желание.** Если внутри появляется «а ещё», «и при этом», «а если» — это несколько story, разбить.
-- **На языке пользователя, не разработчика.** Не «отправляет POST-запрос», а «нажимает кнопку «Войти»».
+- **No technologies.** Not "via REST", not "in React", not "in Postgres". Technologies are the concern of `agent.md`.
+- **No vague words.** "Convenient", "fast", "modern", "intuitive" — drop them or rephrase as observable ("works on a phone", "opens without page reload").
+- **No acceptance criteria, checklists, or given/when/then.** A story describes a wish, not acceptance. Behavior is detailed during `/specify`.
+- **One story = one wish.** If "and also", "and at the same time", "and what if" appears inside — these are several stories, split them.
+- **In the user's language, not the developer's.** Not "sends a POST request", but "clicks the «Sign in» button".
 
-Если что-то из запрещённого важно — оно должно появиться позже, в spec'е, и не от автора story.
+If something forbidden is important — it must appear later, in the spec, and not from the story author.
 
-## Группировка
+## Grouping
 
-Истории лежат в `user-story/<эпик>/<название>.md` — **один уровень папок**, без вложенности.
+Stories live in `user-story/<epic>/<name>.md` — **a single folder level**, no nesting.
 
-- **Эпик — функциональная область** на языке пользователя (`оплата`, `отчёты`, `аутентификация`), не разработчика (`payment-service`, `auth-api`). Технологии в имени эпика — такой же запрет, как и в самой story.
-- **Story на стыке эпиков** — кладётся в один основной, не дублируется. Если непонятно в какой — спросить человека.
-- **Пока историй мало** (условно до 10) — можно держать всё плоско в корне `user-story/`. Эпики вводятся, когда из плоского списка перестаёт читаться структура, а не заранее.
-- Группировка по эпикам **не обязана совпадать с деревом dev units**. Story живёт в корне приложения и может затронуть несколько юнитов; дерево dev units — это write-context для агентов, а эпики — навигация для людей.
+- **An epic is a functional area** in the user's language (`payment`, `reports`, `authentication`), not the developer's (`payment-service`, `auth-api`). Technologies in an epic name are forbidden the same way as in the story itself.
+- **A story at the boundary of epics** — placed in one main epic, not duplicated. If unclear which one — ask the human.
+- **While there are few stories** (roughly under 10) — everything can stay flat in the root of `user-story/`. Epics are introduced when the structure stops being readable from a flat list, not in advance.
+- Grouping by epics **does not have to match the dev units tree**. A story lives at the root of the application and may affect several units; the dev units tree is the write-context for agents, while epics are navigation for humans.
 
 ## Index
 
-`user-story/index.md` — курируемое оглавление: повторяет структуру папок и задаёт порядок прохождения через `/specify`.
+`user-story/index.md` — a curated table of contents: mirrors the folder structure and sets the order for traversal through `/specify`.
 
 ```markdown
 # User Stories
 
-## аутентификация
-- [Запомни меня](аутентификация/remember-me.md)
-- [Переименуй меня](аутентификация/rename-me.md)
+## authentication
+- [Remember me](authentication/remember-me.md)
+- [Rename me](authentication/rename-me.md)
 
-## игра
-- [Играть матч](игра/play-match.md)
-- [Пауза матча](игра/pause-match.md)
+## game
+- [Play a match](game/play-match.md)
+- [Pause a match](game/pause-match.md)
 ```
 
-- Никакой метаинформации — только заголовки эпиков и ссылки на story.
-- Порядок эпиков и порядок историй внутри = порядок `/specify`-сессий. Ранние истории не должны опираться на поздние.
-- Файл лежит в папке, но не в `index.md` — значит, ещё не принят куратором, `/specify` его не трогает.
+- No metadata — only epic headings and links to stories.
+- The order of epics and the order of stories within = the order of `/specify` sessions. Earlier stories must not rely on later ones.
+- A file lying in a folder but not in `index.md` — means it has not yet been accepted by the curator, `/specify` does not touch it.
 
-## Глоссарий
+## Glossary
 
-`user-story/glossary.md` — общий язык проекта: термины, встречающиеся в нескольких story (матч, игрок, ход, очки). Одно определение на термин, на языке пользователя, без технологий.
+`user-story/glossary.md` — the project's shared language: terms appearing in multiple stories (match, player, move, points). One definition per term, in the user's language, no technologies.
 
-`index.md` и `glossary.md` лежат в корне `user-story/` (не внутри эпика) и подмешиваются в read-context каждой `/specify`-сессии — этого достаточно, чтобы спеки не расходились по терминам и порядку.
+`index.md` and `glossary.md` live at the root of `user-story/` (not inside an epic) and are mixed into the read-context of every `/specify` session — that is enough to keep specs from diverging in terminology and order.
 
-## Примеры
+## Examples
 
-### Сброс пароля
-**Кто:** зарегистрированный пользователь, забывший пароль
-**Что хочет:** восстановить доступ к аккаунту по почте
-**Зачем:** не потерять данные и не заводить новый аккаунт
+### Password reset
+**Who:** a registered user who forgot their password
+**Wants:** to recover access to the account via email
+**Why:** not to lose the data and not to create a new account
 
-Бывает после долгого перерыва — заходишь раз в полгода и не помнишь пароль. Хочется не звонить в поддержку, а решить самому.
+Happens after a long break — you log in once every six months and don't remember the password. You want to handle it yourself, not call support.
 
-### Тёмная тема
-**Кто:** пользователь, работающий вечером
-**Что хочет:** включить тёмное оформление
-**Зачем:** не уставать глазами при работе в темноте
+### Dark theme
+**Who:** a user working in the evening
+**Wants:** to enable a dark appearance
+**Why:** not to strain the eyes when working in the dark
 
-### Экспорт отчёта
-**Кто:** бухгалтер
-**Что хочет:** выгрузить отчёт за месяц одним файлом
-**Зачем:** отправить его в налоговую, не собирая руками
+### Report export
+**Who:** an accountant
+**Wants:** to export a monthly report as a single file
+**Why:** to send it to the tax office without assembling it by hand

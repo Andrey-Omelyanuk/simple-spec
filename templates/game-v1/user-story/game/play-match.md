@@ -1,6 +1,6 @@
-## Сыграть партию в пинг-понг
-**Кто:** посетитель сайта
-**Что хочет:** сыграть партию в пинг-понг прямо в браузере
-**Зачем:** развлечься на пару минут, ничего не устанавливая
+## Play a ping-pong match
+**Who:** a site visitor
+**Wants:** to play a ping-pong match right in the browser
+**Why:** to have fun for a couple of minutes without installing anything
 
-Заходишь в перерыве, ракетка слушается клавиш, мяч летает — обычный аркадный пинг-понг.
+You drop in during a break, the paddle obeys the keys, the ball flies — ordinary arcade ping-pong.

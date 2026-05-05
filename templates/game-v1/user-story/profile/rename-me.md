@@ -1,6 +1,6 @@
-## Сменить имя
-**Кто:** игрок, который уже представился сайту
-**Что хочет:** изменить имя, под которым его узнают
-**Зачем:** исправить опечатку или поменять ник, не теряя свою историю
+## Change my name
+**Who:** a player who has already introduced themselves to the site
+**Wants:** to change the name they are recognized by
+**Why:** to fix a typo or change the nickname without losing their history
 
-Ввёл в спешке «Алкса» вместо «Алекса», через неделю замечаешь — хочется поправить, чтобы не «жить» под опечаткой.
+You typed "Alxe" in a hurry instead of "Alex", a week later you notice it — you want to fix it, not "live" under a typo.
