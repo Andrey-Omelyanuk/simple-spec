@@ -62,6 +62,8 @@ function resolveCactusCollision(
 export function update(world: World, input: Input, dt: number): World {
   const { player, walls, cacti, mapWidth, mapHeight } = world;
 
+  const invulnerableTimer = Math.max(0, player.invulnerableTimer - dt);
+
   const len = Math.sqrt(input.dx * input.dx + input.dy * input.dy);
   const ndx = len > 0 ? input.dx / len : 0;
   const ndy = len > 0 ? input.dy / len : 0;
@@ -79,14 +81,19 @@ export function update(world: World, input: Input, dt: number): World {
 
   let hp = player.hp;
   let bounced = false;
+  let tookDamage = false;
 
   for (const cactus of cacti) {
     const result = resolveCactusCollision(player.x, player.y, x, y, player.w, player.h, cactus);
     if (result.collided) {
       x = result.x;
       y = result.y;
-      hp -= 10;
       bounced = true;
+
+      if (invulnerableTimer <= 0) {
+        hp -= 10;
+        tookDamage = true;
+      }
 
       x = clampToMap(x, y, player.w, player.h, mapWidth, mapHeight).x;
       x = resolveX(player.x, y, player.w, player.h, x, walls);
@@ -95,8 +102,24 @@ export function update(world: World, input: Input, dt: number): World {
     }
   }
 
+  if (tookDamage) {
+    hp = Math.max(0, hp);
+  }
+
+  let finalX = x;
+  let finalY = y;
+  let finalHp = hp;
+  let finalInvulnerableTimer = tookDamage ? 1 : invulnerableTimer;
+
+  if (hp <= 0) {
+    finalX = player.spawnX;
+    finalY = player.spawnY;
+    finalHp = player.maxHp;
+    finalInvulnerableTimer = 0;
+  }
+
   return {
     ...world,
-    player: { ...player, x, y, hp },
+    player: { ...player, x: finalX, y: finalY, hp: finalHp, invulnerableTimer: finalInvulnerableTimer },
   };
 }

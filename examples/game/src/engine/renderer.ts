@@ -20,7 +20,16 @@ export class Renderer {
       ctx.fillRect(cactus.x, cactus.y, cactus.w, cactus.h);
     }
 
-    ctx.fillStyle = "#4f4";
-    ctx.fillRect(player.x, player.y, player.w, player.h);
+    const isBlinking = player.invulnerableTimer > 0;
+    const blinkVisible = !isBlinking || Math.floor(player.invulnerableTimer * 10) % 2 === 0;
+
+    if (blinkVisible) {
+      ctx.fillStyle = "#4f4";
+      ctx.fillRect(player.x, player.y, player.w, player.h);
+    }
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "16px monospace";
+    ctx.fillText(`HP: ${player.hp}`, 10, 20);
   }
 }

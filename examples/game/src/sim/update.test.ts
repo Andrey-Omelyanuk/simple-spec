@@ -4,7 +4,18 @@ import { World, Input } from "./world.js";
 
 function makeWorld(overrides: Partial<World> = {}): World {
   return {
-    player: { x: 100, y: 100, w: 20, h: 20, speed: 200, hp: 100 },
+    player: {
+      x: 100,
+      y: 100,
+      w: 20,
+      h: 20,
+      speed: 200,
+      hp: 100,
+      maxHp: 100,
+      spawnX: 100,
+      spawnY: 100,
+      invulnerableTimer: 0,
+    },
     walls: [],
     cacti: [],
     mapWidth: 800,
@@ -125,10 +136,82 @@ describe("cactus-enemy", () => {
   it("bounce respects walls", () => {
     const wall = { x: 0, y: 0, w: 20, h: 200 };
     const cactus = { x: 25, y: 100, w: 20, h: 20 };
-    const world = makeWorld({ player: { x: 50, y: 100, w: 20, h: 20, speed: 200, hp: 100 }, walls: [wall], cacti: [cactus] });
+    const world = makeWorld({
+      player: { x: 50, y: 100, w: 20, h: 20, speed: 200, hp: 100, maxHp: 100, spawnX: 100, spawnY: 100, invulnerableTimer: 0 },
+      walls: [wall],
+      cacti: [cactus],
+    });
     const input: Input = { dx: -1, dy: 0 };
     const next = update(world, input, 1);
     expect(next.player.x).toBeGreaterThanOrEqual(20);
     expect(next.player.hp).toBe(90);
+  });
+});
+
+// story: player-lives
+describe("player-lives", () => {
+  // story: player-lives — сценарий 1: здоровье при появлении
+  it("player spawns with full health", () => {
+    const world = makeWorld();
+    expect(world.player.hp).toBe(100);
+    expect(world.player.maxHp).toBe(100);
+  });
+
+  // story: player-lives — сценарий 2: урон уменьшает здоровье
+  it("damage reduces health but not below zero", () => {
+    const cactus = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({ player: { ...makeWorld().player, hp: 15 }, cacti: [cactus] });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.hp).toBe(5);
+  });
+
+  // story: player-lives — сценарий 3: смерть и возрождение
+  it("player respawns at spawn point with full health on death", () => {
+    const cactus = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({
+      player: { ...makeWorld().player, hp: 5, x: 110, y: 100 },
+      cacti: [cactus],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 0.1);
+    expect(next.player.hp).toBe(100);
+    expect(next.player.x).toBe(100);
+    expect(next.player.y).toBe(100);
+    expect(next.player.invulnerableTimer).toBe(0);
+  });
+
+  // story: player-lives — сценарий 4: мигание после удара
+  it("player becomes invulnerable after taking damage", () => {
+    const cactus = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({ cacti: [cactus] });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.invulnerableTimer).toBe(1);
+  });
+
+  // story: player-lives — сценарий 5: неуязвимость во время мигания
+  it("player takes no damage while invulnerable", () => {
+    const cactus = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({
+      player: { ...makeWorld().player, hp: 90, invulnerableTimer: 0.5, x: 110, y: 100 },
+      cacti: [cactus],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 0.1);
+    expect(next.player.hp).toBe(90);
+    expect(next.player.invulnerableTimer).toBeGreaterThan(0);
+  });
+
+  // story: player-lives — сценарий 6: уязвимость после мигания
+  it("player takes damage after invulnerability ends", () => {
+    const cactus = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({
+      player: { ...makeWorld().player, hp: 90, invulnerableTimer: 0.5, x: 110, y: 100 },
+      cacti: [cactus],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.hp).toBe(80);
   });
 });
