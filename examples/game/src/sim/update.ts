@@ -110,16 +110,23 @@ export function update(world: World, input: Input, dt: number): World {
   let finalY = y;
   let finalHp = hp;
   let finalInvulnerableTimer = tookDamage ? 1 : invulnerableTimer;
+  let finalAnimPhase = player.animPhase;
+
+  const moved = Math.abs(x - player.x) > 0.01 || Math.abs(y - player.y) > 0.01;
+  if (moved) {
+    finalAnimPhase += dt * 10;
+  }
 
   if (hp <= 0) {
     finalX = player.spawnX;
     finalY = player.spawnY;
     finalHp = player.maxHp;
     finalInvulnerableTimer = 0;
+    finalAnimPhase = 0;
   }
 
   return {
     ...world,
-    player: { ...player, x: finalX, y: finalY, hp: finalHp, invulnerableTimer: finalInvulnerableTimer },
+    player: { ...player, x: finalX, y: finalY, hp: finalHp, invulnerableTimer: finalInvulnerableTimer, animPhase: finalAnimPhase },
   };
 }

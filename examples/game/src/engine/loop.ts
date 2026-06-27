@@ -17,7 +17,7 @@ export function startLoop(
 
     const input = inputHandler.getInput();
     state = update(state, input, dt);
-    renderer.draw(state);
+    renderer.draw(state, now / 1000);
 
     requestAnimationFrame(frame);
   }

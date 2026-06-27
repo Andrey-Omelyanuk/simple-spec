@@ -15,6 +15,7 @@ function makeWorld(overrides: Partial<World> = {}): World {
       spawnX: 100,
       spawnY: 100,
       invulnerableTimer: 0,
+      animPhase: 0,
     },
     walls: [],
     cacti: [],
@@ -137,7 +138,7 @@ describe("cactus-enemy", () => {
     const wall = { x: 0, y: 0, w: 20, h: 200 };
     const cactus = { x: 25, y: 100, w: 20, h: 20 };
     const world = makeWorld({
-      player: { x: 50, y: 100, w: 20, h: 20, speed: 200, hp: 100, maxHp: 100, spawnX: 100, spawnY: 100, invulnerableTimer: 0 },
+      player: { x: 50, y: 100, w: 20, h: 20, speed: 200, hp: 100, maxHp: 100, spawnX: 100, spawnY: 100, invulnerableTimer: 0, animPhase: 0 },
       walls: [wall],
       cacti: [cactus],
     });

@@ -12,6 +12,7 @@ export interface Player extends Rect {
   spawnX: number;
   spawnY: number;
   invulnerableTimer: number;
+  animPhase: number;
 }
 
 export interface Cactus extends Rect {}
@@ -42,6 +43,7 @@ export function createWorld(): World {
       spawnX: 100,
       spawnY: 100,
       invulnerableTimer: 0,
+      animPhase: 0,
     },
     walls: [],
     cacti: [],
