@@ -1,4 +1,4 @@
-import { World, Input, Player, Cactus, Patrol, Rect, Heart, Coin, River, Bridge, LEVELS } from "./world.js";
+import { World, Input, Player, Cactus, Patrol, Rect, Heart, Coin, River, Bridge, Portal, LEVELS } from "./world.js";
 import { clampToMap, resolveX, resolveY } from "./collision.js";
 
 function nextRng(state: number): { value: number; state: number } {
@@ -66,6 +66,28 @@ function buildObstacles(walls: Rect[], rivers: Rect[], bridges: Rect[]): Rect[] 
     riverObstacles = next;
   }
   return [...walls, ...riverObstacles];
+}
+
+function checkPortal(
+  entityX: number,
+  entityY: number,
+  entityW: number,
+  entityH: number,
+  portals: Portal[],
+): { dx: number; dy: number; teleported: boolean } {
+  if (portals.length < 2) return { dx: 0, dy: 0, teleported: false };
+  for (let i = 0; i < portals.length; i++) {
+    const p = portals[i];
+    if (rectIntersects(entityX, entityY, entityW, entityH, p.x, p.y, p.w, p.h)) {
+      const other = portals[i === 0 ? 1 : 0];
+      return {
+        dx: (other.x + other.w / 2) - (entityX + entityW / 2),
+        dy: (other.y + other.h / 2) - (entityY + entityH / 2),
+        teleported: true,
+      };
+    }
+  }
+  return { dx: 0, dy: 0, teleported: false };
 }
 
 function resolveCactusCollision(
@@ -185,13 +207,15 @@ function updatePatrols(patrols: Patrol[], dt: number, walls: Rect[], mapWidth: n
 }
 
 export function update(world: World, input: Input, dt: number): World {
-  const { player, walls, cacti, patrols, rivers, bridges, mapWidth, mapHeight } = world;
+  const { player, walls, cacti, patrols, rivers, bridges, portals, mapWidth, mapHeight } = world;
 
   const obstacles = buildObstacles(walls, rivers, bridges);
 
   const updatedPatrols = updatePatrols(patrols, dt, obstacles, mapWidth, mapHeight);
 
   const riverFlowOffset = world.riverFlowOffset + dt * 50;
+
+  let portalCooldown = Math.max(0, world.portalCooldown - dt);
 
   const invulnerableTimer = Math.max(0, player.invulnerableTimer - dt);
 
@@ -294,6 +318,35 @@ export function update(world: World, input: Input, dt: number): World {
   let finalInvulnerableTimer = tookDamage ? 1 : invulnerableTimer;
   let finalAnimPhase = player.animPhase;
 
+  if (portalCooldown <= 0) {
+    const portalResult = checkPortal(finalX, finalY, player.w, player.h, portals);
+    if (portalResult.teleported) {
+      finalX += portalResult.dx;
+      finalY += portalResult.dy;
+      finalX = clampToMap(finalX, finalY, player.w, player.h, mapWidth, mapHeight).x;
+      finalY = clampToMap(finalX, finalY, player.w, player.h, mapWidth, mapHeight).y;
+      portalCooldown = 0.5;
+    }
+  }
+
+  let finalPatrols = [...remainingPatrols];
+  if (portalCooldown <= 0) {
+    finalPatrols = finalPatrols.map((patrol) => {
+      const pos = getPatrolPosition(patrol);
+      const portalResult = checkPortal(pos.x, pos.y, patrol.w, patrol.h, portals);
+      if (portalResult.teleported) {
+        return {
+          ...patrol,
+          startX: patrol.startX + portalResult.dx,
+          startY: patrol.startY + portalResult.dy,
+          endX: patrol.endX + portalResult.dx,
+          endY: patrol.endY + portalResult.dy,
+        };
+      }
+      return patrol;
+    });
+  }
+
   const moved = Math.abs(x - player.x) > 0.01 || Math.abs(y - player.y) > 0.01;
   if (moved) {
     finalAnimPhase += dt * 10;
@@ -354,7 +407,7 @@ export function update(world: World, input: Input, dt: number): World {
   }
 
   let doorVisible = world.door.visible;
-  if (finalScore >= 10) {
+  if (finalScore >= 5) {
     doorVisible = true;
   }
 
@@ -363,11 +416,12 @@ export function update(world: World, input: Input, dt: number): World {
   let newHp = finalHp;
   let newWalls = world.walls;
   let newCacti = remainingCacti;
-  let newPatrols = remainingPatrols;
+  let newPatrols = finalPatrols;
   let newHearts = remainingHearts;
   let newCoins = remainingCoins;
   let newRivers = world.rivers;
   let newBridges = world.bridges;
+  let newPortals = portals;
   let newSpawnX = player.spawnX;
   let newSpawnY = player.spawnY;
   let newDoorVisible = doorVisible;
@@ -400,6 +454,7 @@ export function update(world: World, input: Input, dt: number): World {
       newCoins = levelData.coins;
       newRivers = levelData.rivers;
       newBridges = levelData.bridges;
+      newPortals = levelData.portals;
       newSpawnX = levelData.spawnX;
       newSpawnY = levelData.spawnY;
       finalX = newSpawnX;
@@ -420,6 +475,8 @@ export function update(world: World, input: Input, dt: number): World {
     coins: newCoins,
     rivers: newRivers,
     bridges: newBridges,
+    portals: newPortals,
+    portalCooldown,
     riverFlowOffset,
     score: newScore,
     rngState: currentRngState,

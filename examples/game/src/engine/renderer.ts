@@ -14,6 +14,7 @@ export class Renderer {
     this.drawWalls(walls);
     this.drawRivers(world.rivers, world.riverFlowOffset);
     this.drawBridges(world.bridges);
+    this.drawPortals(world.portals, totalTime);
     this.drawDoor(world.door, totalTime);
     this.drawCacti(cacti, totalTime);
     this.drawPatrols(patrols, totalTime);
@@ -128,6 +129,31 @@ export class Renderer {
           ctx.stroke();
         }
       }
+    }
+  }
+
+  private drawPortals(portals: { x: number; y: number; w: number; h: number }[], totalTime: number): void {
+    const { ctx } = this;
+
+    for (const portal of portals) {
+      const cx = portal.x + portal.w / 2;
+      const cy = portal.y + portal.h / 2;
+      const pulse = 1 + Math.sin(totalTime * 4) * 0.15;
+
+      ctx.fillStyle = "#a3f";
+      ctx.beginPath();
+      ctx.arc(cx, cy, (portal.w / 2) * pulse, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#c6f";
+      ctx.beginPath();
+      ctx.arc(cx, cy, (portal.w / 3) * pulse, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#e9f";
+      ctx.beginPath();
+      ctx.arc(cx, cy, (portal.w / 6) * pulse, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
 

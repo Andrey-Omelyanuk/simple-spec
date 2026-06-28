@@ -24,6 +24,8 @@ function makeWorld(overrides: Partial<World> = {}): World {
     coins: [],
     rivers: [],
     bridges: [],
+    portals: [],
+    portalCooldown: 0,
     riverFlowOffset: 0,
     score: 0,
     rngState: 12345,
@@ -708,20 +710,20 @@ describe("sword-attack", () => {
 // story: levels
 describe("levels", () => {
   // story: levels — сценарий 1: дверь появляется
-  it("door appears when score reaches 10", () => {
-    const world = makeWorld({ score: 9, door: { x: 700, y: 500, w: 40, h: 40, visible: false } });
+  it("door appears when score reaches 5", () => {
+    const world = makeWorld({ score: 4, door: { x: 700, y: 500, w: 40, h: 40, visible: false } });
     const coin = { x: 115, y: 100, w: 20, h: 20 };
     const worldWithCoin = { ...world, coins: [coin, { x: 500, y: 500, w: 20, h: 20 }] };
     const input: Input = { dx: 1, dy: 0 };
     const next = update(worldWithCoin, input, 1);
-    expect(next.score).toBe(10);
+    expect(next.score).toBe(5);
     expect(next.door.visible).toBe(true);
   });
 
   // story: levels — сценарий 2: переход на следующий уровень
   it("player transitions to next level when entering door", () => {
     const world = makeWorld({
-      score: 10,
+      score: 5,
       door: { x: 115, y: 100, w: 40, h: 40, visible: true },
       player: { ...makeWorld().player, hp: 50 },
     });
@@ -738,7 +740,7 @@ describe("levels", () => {
   it("after level 3 returns to level 1", () => {
     const world = makeWorld({
       level: 3,
-      score: 10,
+      score: 5,
       door: { x: 115, y: 100, w: 40, h: 40, visible: true },
     });
     const input: Input = { dx: 1, dy: 0 };
@@ -751,7 +753,7 @@ describe("levels", () => {
   // story: levels — сценарий 4: разные карты
   it("level 2 has different map than level 1", () => {
     const world = makeWorld({
-      score: 10,
+      score: 5,
       door: { x: 115, y: 100, w: 40, h: 40, visible: true },
     });
     const input: Input = { dx: 1, dy: 0 };
@@ -763,7 +765,7 @@ describe("levels", () => {
   // story: levels — сценарий 5: дверь исчезает при переходе
   it("door disappears after transitioning to new level", () => {
     const world = makeWorld({
-      score: 10,
+      score: 5,
       door: { x: 115, y: 100, w: 40, h: 40, visible: true },
     });
     const input: Input = { dx: 1, dy: 0 };
@@ -772,17 +774,130 @@ describe("levels", () => {
   });
 
   // story: levels — сценарий 6: счёт для двери на каждом уровне
-  it("door appears on level 2 when score reaches 10", () => {
+  it("door appears on level 2 when score reaches 5", () => {
     const world = makeWorld({
       level: 2,
-      score: 9,
+      score: 4,
       door: { x: 700, y: 500, w: 40, h: 40, visible: false },
     });
     const coin = { x: 115, y: 100, w: 20, h: 20 };
     const worldWithCoin = { ...world, coins: [coin, { x: 500, y: 500, w: 20, h: 20 }] };
     const input: Input = { dx: 1, dy: 0 };
     const next = update(worldWithCoin, input, 1);
-    expect(next.score).toBe(10);
+    expect(next.score).toBe(5);
     expect(next.door.visible).toBe(true);
+  });
+});
+
+// story: portals
+describe("portals", () => {
+  // story: portals — сценарий 1: порталы на карте
+  it("portals are present on the map", () => {
+    const portals = [
+      { x: 100, y: 400, w: 30, h: 30 },
+      { x: 600, y: 100, w: 30, h: 30 },
+    ];
+    const world = makeWorld({ portals });
+    expect(world.portals.length).toBe(2);
+  });
+
+  // story: portals — сценарий 2: телепортация персонажа
+  it("player teleports to the other portal", () => {
+    const portals = [
+      { x: 100, y: 400, w: 30, h: 30 },
+      { x: 600, y: 100, w: 30, h: 30 },
+    ];
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 95, y: 395 },
+      portals,
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 0.1);
+    expect(next.player.x).toBeGreaterThan(580);
+    expect(next.player.y).toBeGreaterThan(80);
+  });
+
+  // story: portals — сценарий 3: оба направления
+  it("second portal teleports to the first", () => {
+    const portals = [
+      { x: 100, y: 400, w: 30, h: 30 },
+      { x: 600, y: 100, w: 30, h: 30 },
+    ];
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 595, y: 95 },
+      portals,
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 0.1);
+    expect(next.player.x).toBeLessThan(150);
+    expect(next.player.y).toBeGreaterThan(380);
+  });
+
+  // story: portals — сценарий 4: кулдаун
+  it("portal has cooldown after teleportation", () => {
+    const portals = [
+      { x: 100, y: 400, w: 30, h: 30 },
+      { x: 600, y: 100, w: 30, h: 30 },
+    ];
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 95, y: 395 },
+      portals,
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 0.1);
+    expect(next.portalCooldown).toBeGreaterThan(0);
+  });
+
+  // story: portals — сценарий 4: кулдаун предотвращает повторную телепортацию
+  it("portal does not teleport again during cooldown", () => {
+    const portals = [
+      { x: 100, y: 400, w: 30, h: 30 },
+      { x: 600, y: 100, w: 30, h: 30 },
+    ];
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 95, y: 395 },
+      portals,
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    let next = update(world, input, 0.1);
+    const xAfterFirst = next.player.x;
+    next = update(next, input, 0.1);
+    expect(next.player.x).toBeCloseTo(xAfterFirst + 20, 0);
+  });
+
+  // story: portals — сценарий 5: враг проходит через портал
+  it("patrol teleports through portal", () => {
+    const portals = [
+      { x: 100, y: 400, w: 30, h: 30 },
+      { x: 600, y: 100, w: 30, h: 30 },
+    ];
+    const patrol = {
+      x: 100, y: 400, w: 20, h: 20,
+      startX: 100, startY: 400,
+      endX: 200, endY: 400,
+      speed: 50,
+      progress: 0,
+      direction: 1 as const,
+    };
+    const world = makeWorld({ patrols: [patrol], portals });
+    const input: Input = { dx: 0, dy: 0 };
+    const next = update(world, input, 0.1);
+    expect(next.patrols[0].startX).toBeGreaterThan(500);
+  });
+
+  // story: portals — сценарий 6: портал не стена
+  it("portal does not block movement", () => {
+    const portals = [
+      { x: 200, y: 100, w: 30, h: 30 },
+      { x: 600, y: 400, w: 30, h: 30 },
+    ];
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 180, y: 105 },
+      portals,
+      portalCooldown: 1,
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 0.1);
+    expect(next.player.x).toBeGreaterThan(180);
   });
 });

@@ -35,6 +35,8 @@ export interface River extends Rect {}
 
 export interface Bridge extends Rect {}
 
+export interface Portal extends Rect {}
+
 export interface Door extends Rect {
   visible: boolean;
 }
@@ -47,6 +49,7 @@ export interface LevelData {
   coins: Coin[];
   rivers: River[];
   bridges: Bridge[];
+  portals: Portal[];
   spawnX: number;
   spawnY: number;
 }
@@ -60,6 +63,8 @@ export interface World {
   coins: Coin[];
   rivers: River[];
   bridges: Bridge[];
+  portals: Portal[];
+  portalCooldown: number;
   riverFlowOffset: number;
   score: number;
   rngState: number;
@@ -102,6 +107,8 @@ export function createWorld(): World {
     coins: levelData.coins,
     rivers: levelData.rivers,
     bridges: levelData.bridges,
+    portals: levelData.portals,
+    portalCooldown: 0,
     riverFlowOffset: 0,
     score: 0,
     rngState: 12345,
@@ -127,6 +134,7 @@ export const LEVELS: LevelData[] = [
     ],
     rivers: [],
     bridges: [],
+    portals: [],
     spawnX: 100,
     spawnY: 100,
   },
@@ -141,6 +149,10 @@ export const LEVELS: LevelData[] = [
     ],
     rivers: [],
     bridges: [],
+    portals: [
+      { x: 100, y: 400, w: 30, h: 30 },
+      { x: 600, y: 100, w: 30, h: 30 },
+    ],
     spawnX: 100,
     spawnY: 100,
   },
@@ -162,6 +174,7 @@ export const LEVELS: LevelData[] = [
     ],
     rivers: [{ x: 0, y: 500, w: 800, h: 40 }],
     bridges: [{ x: 350, y: 480, w: 100, h: 80 }],
+    portals: [],
     spawnX: 100,
     spawnY: 100,
   },
