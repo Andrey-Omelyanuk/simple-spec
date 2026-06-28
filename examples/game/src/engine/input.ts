@@ -29,6 +29,7 @@ export class InputHandler {
         dy += my;
       }
     }
-    return { dx: Math.sign(dx), dy: Math.sign(dy) };
+    const attack = this.pressed.has("Space");
+    return { dx: Math.sign(dx), dy: Math.sign(dy), attack };
   }
 }

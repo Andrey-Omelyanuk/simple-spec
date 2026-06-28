@@ -14,10 +14,12 @@ export class Renderer {
     this.drawWalls(walls);
     this.drawRivers(world.rivers, world.riverFlowOffset);
     this.drawBridges(world.bridges);
+    this.drawDoor(world.door, totalTime);
     this.drawCacti(cacti, totalTime);
     this.drawPatrols(patrols, totalTime);
     this.drawHearts(world.hearts, totalTime);
     this.drawCoins(world.coins, totalTime);
+    this.drawSword(world);
     this.drawPlayer(player);
 
     ctx.fillStyle = "#fff";
@@ -129,6 +131,25 @@ export class Renderer {
     }
   }
 
+  private drawDoor(door: { x: number; y: number; w: number; h: number; visible: boolean }, totalTime: number): void {
+    if (!door.visible) return;
+
+    const { ctx } = this;
+    const pulse = 1 + Math.sin(totalTime * 2) * 0.05;
+
+    ctx.fillStyle = "#63f";
+    ctx.fillRect(door.x, door.y, door.w, door.h);
+
+    ctx.fillStyle = "#85f";
+    ctx.fillRect(door.x + 3, door.y + 3, door.w - 6, door.h - 6);
+
+    ctx.fillStyle = "#a7f";
+    const knobSize = 4 * pulse;
+    ctx.beginPath();
+    ctx.arc(door.x + door.w * 0.7, door.y + door.h * 0.5, knobSize, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   private drawCacti(cacti: { x: number; y: number; w: number; h: number }[], totalTime: number): void {
     const { ctx } = this;
 
@@ -205,6 +226,29 @@ export class Renderer {
       ctx.beginPath();
       ctx.arc(coin.x + coin.w / 2, coin.y + coin.h / 2, size / 4, 0, Math.PI * 2);
       ctx.fill();
+    }
+  }
+
+  private drawSword(world: World): void {
+    if (world.swordTimer <= 0) return;
+
+    const { ctx } = this;
+    const { player, swordDirection } = world;
+    const swordLength = 30;
+    const { dx, dy } = swordDirection;
+
+    ctx.fillStyle = "#ccc";
+
+    if (dx > 0) {
+      ctx.fillRect(player.x + player.w, player.y + 2, swordLength, player.h - 4);
+    } else if (dx < 0) {
+      ctx.fillRect(player.x - swordLength, player.y + 2, swordLength, player.h - 4);
+    }
+
+    if (dy > 0) {
+      ctx.fillRect(player.x + 2, player.y + player.h, player.w - 4, swordLength);
+    } else if (dy < 0) {
+      ctx.fillRect(player.x + 2, player.y - swordLength, player.w - 4, swordLength);
     }
   }
 

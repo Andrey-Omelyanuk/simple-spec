@@ -1,4 +1,4 @@
-import { World, Input, Cactus, Patrol, Rect, Heart, Coin, River, Bridge } from "./world.js";
+import { World, Input, Player, Cactus, Patrol, Rect, Heart, Coin, River, Bridge, LEVELS } from "./world.js";
 import { clampToMap, resolveX, resolveY } from "./collision.js";
 
 function nextRng(state: number): { value: number; state: number } {
@@ -121,6 +121,26 @@ function getPatrolPosition(patrol: Patrol): { x: number; y: number } {
   };
 }
 
+function getSwordHitbox(player: Player, direction: { dx: number; dy: number }): Rect[] {
+  const swordLength = 30;
+  const rects: Rect[] = [];
+  const { dx, dy } = direction;
+
+  if (dx > 0) {
+    rects.push({ x: player.x + player.w, y: player.y, w: swordLength, h: player.h });
+  } else if (dx < 0) {
+    rects.push({ x: player.x - swordLength, y: player.y, w: swordLength, h: player.h });
+  }
+
+  if (dy > 0) {
+    rects.push({ x: player.x, y: player.y + player.h, w: player.w, h: swordLength });
+  } else if (dy < 0) {
+    rects.push({ x: player.x, y: player.y - swordLength, w: player.w, h: swordLength });
+  }
+
+  return rects;
+}
+
 function updatePatrols(patrols: Patrol[], dt: number, walls: Rect[], mapWidth: number, mapHeight: number): Patrol[] {
   return patrols.map((patrol) => {
     const dx = patrol.endX - patrol.startX;
@@ -175,6 +195,36 @@ export function update(world: World, input: Input, dt: number): World {
 
   const invulnerableTimer = Math.max(0, player.invulnerableTimer - dt);
 
+  let swordDirection = world.swordDirection;
+  if (input.dx !== 0 || input.dy !== 0) {
+    swordDirection = { dx: Math.sign(input.dx), dy: Math.sign(input.dy) };
+  }
+
+  let swordTimer = Math.max(0, world.swordTimer - dt);
+  let swordCooldown = Math.max(0, world.swordCooldown - dt);
+
+  const attack = input.attack ?? false;
+  if (attack && swordCooldown <= 0) {
+    swordTimer = 0.2;
+    swordCooldown = 0.5;
+  }
+
+  let remainingCacti = [...cacti];
+  let remainingPatrols = [...updatedPatrols];
+
+  if (swordTimer > 0) {
+    const hitboxes = getSwordHitbox(player, swordDirection);
+
+    remainingCacti = remainingCacti.filter((cactus) => {
+      return !hitboxes.some((hb) => rectIntersects(hb.x, hb.y, hb.w, hb.h, cactus.x, cactus.y, cactus.w, cactus.h));
+    });
+
+    remainingPatrols = remainingPatrols.filter((patrol) => {
+      const pos = getPatrolPosition(patrol);
+      return !hitboxes.some((hb) => rectIntersects(hb.x, hb.y, hb.w, hb.h, pos.x, pos.y, patrol.w, patrol.h));
+    });
+  }
+
   const len = Math.sqrt(input.dx * input.dx + input.dy * input.dy);
   const ndx = len > 0 ? input.dx / len : 0;
   const ndy = len > 0 ? input.dy / len : 0;
@@ -194,7 +244,7 @@ export function update(world: World, input: Input, dt: number): World {
   let bounced = false;
   let tookDamage = false;
 
-  for (const cactus of cacti) {
+  for (const cactus of remainingCacti) {
     const result = resolveCactusCollision(player.x, player.y, x, y, player.w, player.h, cactus);
     if (result.collided) {
       x = result.x;
@@ -213,7 +263,7 @@ export function update(world: World, input: Input, dt: number): World {
     }
   }
 
-  for (const patrol of updatedPatrols) {
+  for (const patrol of remainingPatrols) {
     const pos = getPatrolPosition(patrol);
     const patrolRect = { x: pos.x, y: pos.y, w: patrol.w, h: patrol.h };
     const result = resolveCactusCollision(player.x, player.y, x, y, player.w, player.h, patrolRect);
@@ -303,14 +353,80 @@ export function update(world: World, input: Input, dt: number): World {
     finalAnimPhase = 0;
   }
 
+  let doorVisible = world.door.visible;
+  if (finalScore >= 10) {
+    doorVisible = true;
+  }
+
+  let finalLevel = world.level;
+  let newScore = finalScore;
+  let newHp = finalHp;
+  let newWalls = world.walls;
+  let newCacti = remainingCacti;
+  let newPatrols = remainingPatrols;
+  let newHearts = remainingHearts;
+  let newCoins = remainingCoins;
+  let newRivers = world.rivers;
+  let newBridges = world.bridges;
+  let newSpawnX = player.spawnX;
+  let newSpawnY = player.spawnY;
+  let newDoorVisible = doorVisible;
+
+  if (doorVisible) {
+    let doorCollision = false;
+    const steps = 10;
+    for (let s = 0; s <= steps; s++) {
+      const t = s / steps;
+      const checkX = player.x + (finalX - player.x) * t;
+      const checkY = player.y + (finalY - player.y) * t;
+      if (rectIntersects(checkX, checkY, player.w, player.h, world.door.x, world.door.y, world.door.w, world.door.h)) {
+        doorCollision = true;
+        break;
+      }
+    }
+
+    if (doorCollision) {
+      finalLevel = world.level + 1;
+      if (finalLevel > 3) {
+        finalLevel = 1;
+      }
+      const levelData = LEVELS[finalLevel - 1];
+      newScore = 0;
+      newHp = player.maxHp;
+      newWalls = levelData.walls;
+      newCacti = levelData.cacti;
+      newPatrols = levelData.patrols;
+      newHearts = levelData.hearts;
+      newCoins = levelData.coins;
+      newRivers = levelData.rivers;
+      newBridges = levelData.bridges;
+      newSpawnX = levelData.spawnX;
+      newSpawnY = levelData.spawnY;
+      finalX = newSpawnX;
+      finalY = newSpawnY;
+      finalAnimPhase = 0;
+      finalInvulnerableTimer = 0;
+      newDoorVisible = false;
+    }
+  }
+
   return {
     ...world,
-    player: { ...player, x: finalX, y: finalY, hp: finalHp, invulnerableTimer: finalInvulnerableTimer, animPhase: finalAnimPhase },
-    patrols: updatedPatrols,
-    hearts: remainingHearts,
-    coins: remainingCoins,
+    player: { ...player, x: finalX, y: finalY, hp: newHp, invulnerableTimer: finalInvulnerableTimer, animPhase: finalAnimPhase, spawnX: newSpawnX, spawnY: newSpawnY },
+    walls: newWalls,
+    patrols: newPatrols,
+    cacti: newCacti,
+    hearts: newHearts,
+    coins: newCoins,
+    rivers: newRivers,
+    bridges: newBridges,
     riverFlowOffset,
-    score: finalScore,
+    score: newScore,
     rngState: currentRngState,
+    swordTimer,
+    swordCooldown,
+    swordDirection,
+    level: finalLevel,
+    door: { ...world.door, visible: newDoorVisible },
   };
 }

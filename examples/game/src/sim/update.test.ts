@@ -29,6 +29,11 @@ function makeWorld(overrides: Partial<World> = {}): World {
     rngState: 12345,
     mapWidth: 800,
     mapHeight: 600,
+    swordTimer: 0,
+    swordCooldown: 0,
+    swordDirection: { dx: 1, dy: 0 },
+    level: 1,
+    door: { x: 700, y: 500, w: 40, h: 40, visible: false },
     ...overrides,
   };
 }
@@ -538,20 +543,20 @@ describe("river", () => {
 
 // story: bridge
 describe("bridge", () => {
-  // story: bridge — сценарий 1: мост на реке
-  it("bridge is present on the river", () => {
-    const river = { x: 400, y: 0, w: 40, h: 600 };
-    const bridge = { x: 380, y: 250, w: 80, h: 20 };
+  const PLAYER_SIZE = 20;
+  const river = { x: 200, y: 0, w: 40, h: 600 };
+  const bridge = { x: 180, y: 60, w: 80, h: PLAYER_SIZE * 4 };
+
+  // story: bridge — сценарий 1: мост на реке шириной 3-4 персонажа
+  it("bridge is present on the river and is 3-4 player widths wide", () => {
     const world = makeWorld({ rivers: [river], bridges: [bridge] });
     expect(world.bridges.length).toBe(1);
-    expect(world.bridges[0].x).toBe(380);
-    expect(world.bridges[0].y).toBe(250);
+    expect(world.bridges[0].h).toBeGreaterThanOrEqual(PLAYER_SIZE * 3);
+    expect(world.bridges[0].h).toBeLessThanOrEqual(PLAYER_SIZE * 4);
   });
 
   // story: bridge — сценарий 2: проход по мосту
   it("player can cross the river via bridge", () => {
-    const river = { x: 200, y: 0, w: 40, h: 600 };
-    const bridge = { x: 180, y: 90, w: 80, h: 40 };
     const world = makeWorld({
       player: { ...makeWorld().player, x: 100, y: 100 },
       rivers: [river],
@@ -564,8 +569,6 @@ describe("bridge", () => {
 
   // story: bridge — сценарий 3: не пройти вне моста
   it("player cannot pass through river outside bridge", () => {
-    const river = { x: 200, y: 0, w: 40, h: 600 };
-    const bridge = { x: 180, y: 90, w: 80, h: 40 };
     const world = makeWorld({
       player: { ...makeWorld().player, x: 100, y: 300 },
       rivers: [river],
@@ -577,16 +580,209 @@ describe("bridge", () => {
     expect(next.player.x + next.player.w).toBeCloseTo(200, 5);
   });
 
-  // story: bridge — сценарий 4: мост на месте
+  // story: bridge — сценарий 4: мост широкий — проход по верхнему краю
+  it("player can cross at the top edge of the wide bridge", () => {
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 100, y: 60 },
+      rivers: [river],
+      bridges: [bridge],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.x).toBeGreaterThan(240);
+  });
+
+  // story: bridge — сценарий 4: мост широкий — проход по центру
+  it("player can cross at the center of the wide bridge", () => {
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 100, y: 100 },
+      rivers: [river],
+      bridges: [bridge],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.x).toBeGreaterThan(240);
+  });
+
+  // story: bridge — сценарий 4: мост широкий — проход по нижнему краю
+  it("player can cross at the bottom edge of the wide bridge", () => {
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 100, y: 120 },
+      rivers: [river],
+      bridges: [bridge],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.x).toBeGreaterThan(240);
+  });
+
+  // story: bridge — сценарий 5: мост на месте
   it("bridge stays in place", () => {
-    const river = { x: 400, y: 0, w: 40, h: 600 };
-    const bridge = { x: 380, y: 250, w: 80, h: 20 };
     const world = makeWorld({ rivers: [river], bridges: [bridge] });
     const input: Input = { dx: 0, dy: 0 };
     const next = update(world, input, 10);
-    expect(next.bridges[0].x).toBe(380);
-    expect(next.bridges[0].y).toBe(250);
-    expect(next.bridges[0].w).toBe(80);
-    expect(next.bridges[0].h).toBe(20);
+    expect(next.bridges[0].x).toBe(bridge.x);
+    expect(next.bridges[0].y).toBe(bridge.y);
+    expect(next.bridges[0].w).toBe(bridge.w);
+    expect(next.bridges[0].h).toBe(bridge.h);
+  });
+});
+
+// story: sword-attack
+describe("sword-attack", () => {
+  // story: sword-attack — сценарий 1: покой без меча
+  it("sword is inactive when not attacking", () => {
+    const world = makeWorld();
+    const input: Input = { dx: 0, dy: 0, attack: false };
+    const next = update(world, input, 1);
+    expect(next.swordTimer).toBe(0);
+    expect(next.swordCooldown).toBe(0);
+  });
+
+  // story: sword-attack — сценарий 2: замах в сторону движения
+  it("sword swings in the direction of last movement", () => {
+    const world = makeWorld();
+    let input: Input = { dx: 1, dy: 0, attack: false };
+    let next = update(world, input, 0.1);
+    input = { dx: 0, dy: 0, attack: true };
+    next = update(next, input, 0.01);
+    expect(next.swordTimer).toBeGreaterThan(0);
+    expect(next.swordDirection.dx).toBe(1);
+    expect(next.swordDirection.dy).toBe(0);
+  });
+
+  // story: sword-attack — сценарий 3: удар убивает патрульного
+  it("sword kills patrol in range", () => {
+    const patrol = {
+      x: 130, y: 100, w: 20, h: 20,
+      startX: 130, startY: 100,
+      endX: 300, endY: 100,
+      speed: 0, progress: 0, direction: 1 as const,
+    };
+    const world = makeWorld({ patrols: [patrol] });
+    const input: Input = { dx: 0, dy: 0, attack: true };
+    const next = update(world, input, 0.01);
+    expect(next.patrols.length).toBe(0);
+  });
+
+  // story: sword-attack — сценарий 4: удар срубает кактус
+  it("sword kills cactus in range", () => {
+    const cactus = { x: 130, y: 100, w: 20, h: 20 };
+    const world = makeWorld({ cacti: [cactus] });
+    const input: Input = { dx: 0, dy: 0, attack: true };
+    const next = update(world, input, 0.01);
+    expect(next.cacti.length).toBe(0);
+  });
+
+  // story: sword-attack — сценарий 5: промах
+  it("sword does not hit enemy out of range", () => {
+    const cactus = { x: 500, y: 100, w: 20, h: 20 };
+    const world = makeWorld({ cacti: [cactus] });
+    const input: Input = { dx: 0, dy: 0, attack: true };
+    const next = update(world, input, 0.01);
+    expect(next.cacti.length).toBe(1);
+  });
+
+  // story: sword-attack — сценарий 6: перезарядка
+  it("sword has cooldown after attack", () => {
+    const world = makeWorld();
+    let input: Input = { dx: 0, dy: 0, attack: true };
+    let next = update(world, input, 0.01);
+    expect(next.swordCooldown).toBeGreaterThan(0);
+    input = { dx: 0, dy: 0, attack: true };
+    next = update(next, input, 0.01);
+    expect(next.swordTimer).toBeLessThan(0.2);
+  });
+
+  // story: sword-attack — сценарий 7: направление по умолчанию
+  it("sword swings right by default when no movement", () => {
+    const world = makeWorld();
+    const input: Input = { dx: 0, dy: 0, attack: true };
+    const next = update(world, input, 0.01);
+    expect(next.swordTimer).toBeGreaterThan(0);
+    expect(next.swordDirection.dx).toBe(1);
+    expect(next.swordDirection.dy).toBe(0);
+  });
+});
+
+// story: levels
+describe("levels", () => {
+  // story: levels — сценарий 1: дверь появляется
+  it("door appears when score reaches 10", () => {
+    const world = makeWorld({ score: 9, door: { x: 700, y: 500, w: 40, h: 40, visible: false } });
+    const coin = { x: 115, y: 100, w: 20, h: 20 };
+    const worldWithCoin = { ...world, coins: [coin, { x: 500, y: 500, w: 20, h: 20 }] };
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(worldWithCoin, input, 1);
+    expect(next.score).toBe(10);
+    expect(next.door.visible).toBe(true);
+  });
+
+  // story: levels — сценарий 2: переход на следующий уровень
+  it("player transitions to next level when entering door", () => {
+    const world = makeWorld({
+      score: 10,
+      door: { x: 115, y: 100, w: 40, h: 40, visible: true },
+      player: { ...makeWorld().player, hp: 50 },
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.level).toBe(2);
+    expect(next.score).toBe(0);
+    expect(next.player.hp).toBe(100);
+    expect(next.player.x).toBe(100);
+    expect(next.player.y).toBe(100);
+  });
+
+  // story: levels — сценарий 3: три уровня
+  it("after level 3 returns to level 1", () => {
+    const world = makeWorld({
+      level: 3,
+      score: 10,
+      door: { x: 115, y: 100, w: 40, h: 40, visible: true },
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.level).toBe(1);
+    expect(next.score).toBe(0);
+    expect(next.player.hp).toBe(100);
+  });
+
+  // story: levels — сценарий 4: разные карты
+  it("level 2 has different map than level 1", () => {
+    const world = makeWorld({
+      score: 10,
+      door: { x: 115, y: 100, w: 40, h: 40, visible: true },
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.level).toBe(2);
+    expect(next.walls.length).toBeGreaterThan(0);
+  });
+
+  // story: levels — сценарий 5: дверь исчезает при переходе
+  it("door disappears after transitioning to new level", () => {
+    const world = makeWorld({
+      score: 10,
+      door: { x: 115, y: 100, w: 40, h: 40, visible: true },
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.door.visible).toBe(false);
+  });
+
+  // story: levels — сценарий 6: счёт для двери на каждом уровне
+  it("door appears on level 2 when score reaches 10", () => {
+    const world = makeWorld({
+      level: 2,
+      score: 9,
+      door: { x: 700, y: 500, w: 40, h: 40, visible: false },
+    });
+    const coin = { x: 115, y: 100, w: 20, h: 20 };
+    const worldWithCoin = { ...world, coins: [coin, { x: 500, y: 500, w: 20, h: 20 }] };
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(worldWithCoin, input, 1);
+    expect(next.score).toBe(10);
+    expect(next.door.visible).toBe(true);
   });
 });

@@ -37,7 +37,7 @@ world.rivers = [
   { x: 400, y: 0, w: 40, h: 600 },
 ];
 world.bridges = [
-  { x: 380, y: 280, w: 80, h: 30 },
+  { x: 380, y: 260, w: 80, h: 80 },
 ];
 
 const inputHandler = new InputHandler();

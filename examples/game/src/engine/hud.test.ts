@@ -12,6 +12,9 @@ function makeWorld(overrides: Partial<World> = {}): World {
     walls: [], cacti: [], patrols: [], hearts: [], coins: [], rivers: [], bridges: [],
     riverFlowOffset: 0,
     score: 0, rngState: 12345, mapWidth: 800, mapHeight: 600,
+    swordTimer: 0, swordCooldown: 0, swordDirection: { dx: 1, dy: 0 },
+    level: 1,
+    door: { x: 700, y: 500, w: 40, h: 40, visible: false },
     ...overrides,
   };
 }
