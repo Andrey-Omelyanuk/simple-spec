@@ -17,10 +17,21 @@ export interface Player extends Rect {
 
 export interface Cactus extends Rect {}
 
+export interface Patrol extends Rect {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  speed: number;
+  progress: number;
+  direction: 1 | -1;
+}
+
 export interface World {
   player: Player;
   walls: Rect[];
   cacti: Cactus[];
+  patrols: Patrol[];
   mapWidth: number;
   mapHeight: number;
 }
@@ -47,6 +58,7 @@ export function createWorld(): World {
     },
     walls: [],
     cacti: [],
+    patrols: [],
     mapWidth: 800,
     mapHeight: 600,
   };

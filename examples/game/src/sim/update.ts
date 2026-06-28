@@ -1,4 +1,4 @@
-import { World, Input, Cactus } from "./world.js";
+import { World, Input, Cactus, Patrol, Rect } from "./world.js";
 import { clampToMap, resolveX, resolveY } from "./collision.js";
 
 function rectIntersects(
@@ -59,8 +59,61 @@ function resolveCactusCollision(
   return { x: newX, y: newY, collided: false };
 }
 
+function getPatrolPosition(patrol: Patrol): { x: number; y: number } {
+  const t = patrol.progress;
+  return {
+    x: patrol.startX + (patrol.endX - patrol.startX) * t,
+    y: patrol.startY + (patrol.endY - patrol.startY) * t,
+  };
+}
+
+function updatePatrols(patrols: Patrol[], dt: number, walls: Rect[], mapWidth: number, mapHeight: number): Patrol[] {
+  return patrols.map((patrol) => {
+    const dx = patrol.endX - patrol.startX;
+    const dy = patrol.endY - patrol.startY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    if (distance === 0) return patrol;
+
+    const progressDelta = (patrol.speed * dt * patrol.direction) / distance;
+    let newProgress = patrol.progress + progressDelta;
+    let newDirection = patrol.direction;
+
+    if (newProgress >= 1) {
+      newProgress = 1;
+      newDirection = -1;
+    } else if (newProgress <= 0) {
+      newProgress = 0;
+      newDirection = 1;
+    }
+
+    const oldPos = getPatrolPosition(patrol);
+    const tempPatrol = { ...patrol, progress: newProgress };
+    const newPos = getPatrolPosition(tempPatrol);
+    
+    let x = newPos.x;
+    let y = newPos.y;
+    
+    const clamped = clampToMap(x, y, patrol.w, patrol.h, mapWidth, mapHeight);
+    x = clamped.x;
+    y = clamped.y;
+    
+    x = resolveX(oldPos.x, oldPos.y, patrol.w, patrol.h, x, walls);
+    y = resolveY(x, oldPos.y, patrol.w, patrol.h, y, walls);
+
+    if (x !== newPos.x || y !== newPos.y) {
+      newDirection = (newDirection * -1) as 1 | -1;
+      newProgress = patrol.progress;
+    }
+
+    return { ...patrol, progress: newProgress, direction: newDirection };
+  });
+}
+
 export function update(world: World, input: Input, dt: number): World {
-  const { player, walls, cacti, mapWidth, mapHeight } = world;
+  const { player, walls, cacti, patrols, mapWidth, mapHeight } = world;
+
+  const updatedPatrols = updatePatrols(patrols, dt, walls, mapWidth, mapHeight);
 
   const invulnerableTimer = Math.max(0, player.invulnerableTimer - dt);
 
@@ -85,6 +138,27 @@ export function update(world: World, input: Input, dt: number): World {
 
   for (const cactus of cacti) {
     const result = resolveCactusCollision(player.x, player.y, x, y, player.w, player.h, cactus);
+    if (result.collided) {
+      x = result.x;
+      y = result.y;
+      bounced = true;
+
+      if (invulnerableTimer <= 0) {
+        hp -= 10;
+        tookDamage = true;
+      }
+
+      x = clampToMap(x, y, player.w, player.h, mapWidth, mapHeight).x;
+      x = resolveX(player.x, y, player.w, player.h, x, walls);
+      y = clampToMap(x, y, player.w, player.h, mapWidth, mapHeight).y;
+      y = resolveY(x, player.y, player.w, player.h, y, walls);
+    }
+  }
+
+  for (const patrol of updatedPatrols) {
+    const pos = getPatrolPosition(patrol);
+    const patrolRect = { x: pos.x, y: pos.y, w: patrol.w, h: patrol.h };
+    const result = resolveCactusCollision(player.x, player.y, x, y, player.w, player.h, patrolRect);
     if (result.collided) {
       x = result.x;
       y = result.y;
@@ -128,5 +202,6 @@ export function update(world: World, input: Input, dt: number): World {
   return {
     ...world,
     player: { ...player, x: finalX, y: finalY, hp: finalHp, invulnerableTimer: finalInvulnerableTimer, animPhase: finalAnimPhase },
+    patrols: updatedPatrols,
   };
 }

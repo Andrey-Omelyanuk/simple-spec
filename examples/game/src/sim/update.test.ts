@@ -19,6 +19,7 @@ function makeWorld(overrides: Partial<World> = {}): World {
     },
     walls: [],
     cacti: [],
+    patrols: [],
     mapWidth: 800,
     mapHeight: 600,
     ...overrides,
@@ -214,5 +215,106 @@ describe("player-lives", () => {
     const input: Input = { dx: 1, dy: 0 };
     const next = update(world, input, 1);
     expect(next.player.hp).toBe(80);
+  });
+});
+
+// story: patrol-enemy
+describe("patrol-enemy", () => {
+  // story: patrol-enemy — сценарий 1: идёт по маршруту
+  it("patrol moves along its route", () => {
+    const patrol = {
+      x: 200, y: 100, w: 20, h: 20,
+      startX: 200, startY: 100,
+      endX: 400, endY: 100,
+      speed: 100,
+      progress: 0,
+      direction: 1 as const,
+    };
+    const world = makeWorld({ patrols: [patrol] });
+    const input: Input = { dx: 0, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.patrols[0].progress).toBeGreaterThan(0);
+    expect(next.patrols[0].progress).toBeLessThanOrEqual(1);
+  });
+
+  // story: patrol-enemy — сценарий 2: разворот в конце
+  it("patrol turns around at the end of route", () => {
+    const patrol = {
+      x: 400, y: 100, w: 20, h: 20,
+      startX: 200, startY: 100,
+      endX: 400, endY: 100,
+      speed: 100,
+      progress: 0.95,
+      direction: 1 as const,
+    };
+    const world = makeWorld({ patrols: [patrol] });
+    const input: Input = { dx: 0, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.patrols[0].direction).toBe(-1);
+  });
+
+  // story: patrol-enemy — сценарий 3: касание — урон
+  it("player takes damage on patrol touch", () => {
+    const patrol = {
+      x: 115, y: 100, w: 20, h: 20,
+      startX: 115, startY: 100,
+      endX: 300, endY: 100,
+      speed: 0,
+      progress: 0,
+      direction: 1 as const,
+    };
+    const world = makeWorld({ patrols: [patrol] });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.hp).toBe(90);
+  });
+
+  // story: patrol-enemy — сценарий 4: касание — отскок
+  it("player bounces away from patrol", () => {
+    const patrol = {
+      x: 115, y: 100, w: 20, h: 20,
+      startX: 115, startY: 100,
+      endX: 300, endY: 100,
+      speed: 0,
+      progress: 0,
+      direction: 1 as const,
+    };
+    const world = makeWorld({ patrols: [patrol] });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.x).toBeLessThan(115);
+  });
+
+  // story: patrol-enemy — сценарий 5: патрульный не проходит сквозь стены
+  it("patrol does not pass through walls", () => {
+    const wall = { x: 250, y: 80, w: 20, h: 60 };
+    const patrol = {
+      x: 200, y: 100, w: 20, h: 20,
+      startX: 200, startY: 100,
+      endX: 400, endY: 100,
+      speed: 100,
+      progress: 0,
+      direction: 1 as const,
+    };
+    const world = makeWorld({ walls: [wall], patrols: [patrol] });
+    const input: Input = { dx: 0, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.patrols[0].direction).toBe(-1);
+  });
+
+  // story: patrol-enemy — сценарий 6: патрульный не уходит за край карты
+  it("patrol does not leave the map", () => {
+    const patrol = {
+      x: 750, y: 100, w: 20, h: 20,
+      startX: 750, startY: 100,
+      endX: 900, endY: 100,
+      speed: 100,
+      progress: 0.2,
+      direction: 1 as const,
+    };
+    const world = makeWorld({ patrols: [patrol] });
+    const input: Input = { dx: 0, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.patrols[0].direction).toBe(-1);
   });
 });

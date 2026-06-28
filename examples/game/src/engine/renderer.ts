@@ -1,17 +1,18 @@
-import { World } from "../sim/world.js";
+import { World, Patrol } from "../sim/world.js";
 
 export class Renderer {
   constructor(private ctx: CanvasRenderingContext2D) {}
 
   draw(world: World, totalTime: number): void {
     const { ctx } = this;
-    const { player, walls, cacti, mapWidth, mapHeight } = world;
+    const { player, walls, cacti, patrols, mapWidth, mapHeight } = world;
 
     ctx.fillStyle = "#333";
     ctx.fillRect(0, 0, mapWidth, mapHeight);
 
     this.drawWalls(walls);
     this.drawCacti(cacti, totalTime);
+    this.drawPatrols(patrols, totalTime);
     this.drawPlayer(player);
 
     ctx.fillStyle = "#fff";
@@ -61,6 +62,27 @@ export class Renderer {
       ctx.fillStyle = "#2a2";
       ctx.fillRect(-cactus.w / 2, -cactus.h, cactus.w, cactus.h);
       ctx.restore();
+    }
+  }
+
+  private drawPatrols(patrols: Patrol[], totalTime: number): void {
+    const { ctx } = this;
+
+    for (const patrol of patrols) {
+      const x = patrol.startX + (patrol.endX - patrol.startX) * patrol.progress;
+      const y = patrol.startY + (patrol.endY - patrol.startY) * patrol.progress;
+
+      const legOffset = Math.sin(totalTime * 8) * 3;
+      const bodyH = patrol.h * 0.6;
+      const legH = patrol.h * 0.4;
+      const legW = patrol.w * 0.3;
+
+      ctx.fillStyle = "#c33";
+      ctx.fillRect(x, y, patrol.w, bodyH);
+
+      ctx.fillStyle = "#822";
+      ctx.fillRect(x + patrol.w * 0.2, y + bodyH, legW, legH + legOffset);
+      ctx.fillRect(x + patrol.w * 0.5, y + bodyH, legW, legH - legOffset);
     }
   }
 
