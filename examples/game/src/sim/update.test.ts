@@ -460,7 +460,7 @@ describe("score-coins", () => {
     expect(next.score).toBe(3);
   });
 
-  // story: score-coins — сценарий 6: счёт на экране (проверяется через состояние)
+  // story: score-coins — сценарий 6 (значение): счёт растёт до 5; отображение — в hud.test.ts
   it("score value is tracked in world state", () => {
     const coin1 = { x: 115, y: 100, w: 20, h: 20 };
     const coin2 = { x: 300, y: 100, w: 20, h: 20 };

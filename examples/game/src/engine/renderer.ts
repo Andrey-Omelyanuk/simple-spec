@@ -1,4 +1,5 @@
 import { World, Patrol } from "../sim/world.js";
+import { hud } from "./hud.js";
 
 export class Renderer {
   constructor(private ctx: CanvasRenderingContext2D) {}
@@ -19,8 +20,10 @@ export class Renderer {
 
     ctx.fillStyle = "#fff";
     ctx.font = "16px monospace";
-    ctx.fillText(`HP: ${player.hp}`, 10, 20);
-    ctx.fillText(`Score: ${world.score}`, mapWidth - 100, 20);
+    for (const item of hud(world)) {
+      const x = item.corner === "top-right" ? mapWidth - 100 : 10;
+      ctx.fillText(item.text, x, 20);
+    }
   }
 
   private drawWalls(walls: { x: number; y: number; w: number; h: number }[]): void {
