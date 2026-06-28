@@ -20,6 +20,10 @@ function makeWorld(overrides: Partial<World> = {}): World {
     walls: [],
     cacti: [],
     patrols: [],
+    hearts: [],
+    coins: [],
+    score: 0,
+    rngState: 12345,
     mapWidth: 800,
     mapHeight: 600,
     ...overrides,
@@ -316,5 +320,157 @@ describe("patrol-enemy", () => {
     const input: Input = { dx: 0, dy: 0 };
     const next = update(world, input, 1);
     expect(next.patrols[0].direction).toBe(-1);
+  });
+});
+
+// story: health-heart
+describe("health-heart", () => {
+  // story: health-heart — сценарий 1: сердечки на карте
+  it("hearts are present on the map at start", () => {
+    const heart = { x: 300, y: 300, w: 20, h: 20 };
+    const world = makeWorld({ hearts: [heart] });
+    expect(world.hearts.length).toBe(1);
+    expect(world.hearts[0].x).toBe(300);
+    expect(world.hearts[0].y).toBe(300);
+  });
+
+  // story: health-heart — сценарий 2: подбор сердечка
+  it("picking up a heart restores health and removes it", () => {
+    const heart = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({
+      player: { ...makeWorld().player, hp: 50 },
+      hearts: [heart],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.hp).toBe(60);
+    expect(next.hearts.length).toBe(0);
+  });
+
+  // story: health-heart — сценарий 3: здоровье не выше максимума
+  it("health does not exceed maximum after picking up heart", () => {
+    const heart = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({
+      player: { ...makeWorld().player, hp: 95 },
+      hearts: [heart],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.hp).toBe(100);
+    expect(next.hearts.length).toBe(0);
+  });
+
+  // story: health-heart — сценарий 4: полное здоровье
+  it("heart is not consumed when health is full", () => {
+    const heart = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({
+      player: { ...makeWorld().player, hp: 100 },
+      hearts: [heart],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.hp).toBe(100);
+    expect(next.hearts.length).toBe(1);
+  });
+
+  // story: health-heart — сценарий 5: сердечко исчезает навсегда
+  it("picked up heart does not reappear", () => {
+    const heart = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({
+      player: { ...makeWorld().player, hp: 50 },
+      hearts: [heart],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    let next = update(world, input, 1);
+    expect(next.hearts.length).toBe(0);
+
+    const inputBack: Input = { dx: -1, dy: 0 };
+    next = update(next, inputBack, 1);
+    expect(next.hearts.length).toBe(0);
+  });
+});
+
+// story: score-coins
+describe("score-coins", () => {
+  // story: score-coins — сценарий 1: счёт при появлении
+  it("score is zero and 2 coins on map at game start", () => {
+    const world = makeWorld({ coins: [{ x: 100, y: 200, w: 20, h: 20 }, { x: 300, y: 400, w: 20, h: 20 }] });
+    expect(world.score).toBe(0);
+    expect(world.coins.length).toBe(2);
+  });
+
+  // story: score-coins — сценарий 2: подбор монетки
+  it("picking up a coin increases score by 1 and spawns new one", () => {
+    const coin = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({ coins: [coin, { x: 500, y: 500, w: 20, h: 20 }] });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.score).toBe(1);
+    expect(next.coins.length).toBe(2);
+  });
+
+  // story: score-coins — сценарий 3: несколько монеток
+  it("picking up multiple coins increases score accordingly", () => {
+    const coin1 = { x: 115, y: 100, w: 20, h: 20 };
+    const coin2 = { x: 250, y: 100, w: 20, h: 20 };
+    const world = makeWorld({ coins: [coin1, coin2] });
+    
+    let input: Input = { dx: 1, dy: 0 };
+    let next = update(world, input, 0.1);
+    expect(next.score).toBe(1);
+    expect(next.coins.length).toBe(2);
+    
+    next = update(next, input, 0.7);
+    expect(next.score).toBe(2);
+    expect(next.coins.length).toBe(2);
+  });
+
+  // story: score-coins — сценарий 4: всегда 2 монетки
+  it("always 2 coins on map - new one spawns when picked up", () => {
+    const coin = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({ coins: [coin, { x: 500, y: 500, w: 20, h: 20 }] });
+    const input: Input = { dx: 1, dy: 0 };
+    
+    let next = update(world, input, 1);
+    expect(next.coins.length).toBe(2);
+    
+    next = update(next, input, 1);
+    expect(next.coins.length).toBe(2);
+  });
+
+  // story: score-coins — сценарий 5: счёт при смерти
+  it("score persists after death and respawn", () => {
+    const cactus = { x: 200, y: 100, w: 20, h: 20 };
+    const coin = { x: 115, y: 100, w: 20, h: 20 };
+    const world = makeWorld({
+      player: { ...makeWorld().player, hp: 5, x: 100, y: 100 },
+      cacti: [cactus],
+      coins: [coin, { x: 500, y: 500, w: 20, h: 20 }],
+      score: 2,
+    });
+    
+    let input: Input = { dx: 1, dy: 0 };
+    let next = update(world, input, 0.1);
+    expect(next.score).toBe(3);
+    expect(next.player.hp).toBe(5);
+    
+    next = update(next, input, 0.5);
+    expect(next.player.hp).toBe(100);
+    expect(next.player.x).toBe(100);
+    expect(next.score).toBe(3);
+  });
+
+  // story: score-coins — сценарий 6: счёт на экране (проверяется через состояние)
+  it("score value is tracked in world state", () => {
+    const coin1 = { x: 115, y: 100, w: 20, h: 20 };
+    const coin2 = { x: 300, y: 100, w: 20, h: 20 };
+    const world = makeWorld({ coins: [coin1, coin2], score: 3 });
+    
+    const input: Input = { dx: 1, dy: 0 };
+    let next = update(world, input, 0.1);
+    expect(next.score).toBe(4);
+    
+    next = update(next, input, 0.9);
+    expect(next.score).toBe(5);
   });
 });

@@ -24,6 +24,15 @@ world.patrols = [
   { x: 550, y: 200, w: 20, h: 20, startX: 550, startY: 100, endX: 550, endY: 280, speed: 90, progress: 0, direction: 1 },
   { x: 200, y: 550, w: 20, h: 20, startX: 100, startY: 550, endX: 400, endY: 550, speed: 120, progress: 0.5, direction: 1 },
 ];
+world.hearts = [
+  { x: 350, y: 200, w: 20, h: 20 },
+  { x: 150, y: 350, w: 20, h: 20 },
+  { x: 650, y: 350, w: 20, h: 20 },
+];
+world.coins = [
+  { x: 400, y: 300, w: 20, h: 20 },
+  { x: 600, y: 150, w: 20, h: 20 },
+];
 
 const inputHandler = new InputHandler();
 const renderer = new Renderer(ctx);

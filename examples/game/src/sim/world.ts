@@ -27,11 +27,19 @@ export interface Patrol extends Rect {
   direction: 1 | -1;
 }
 
+export interface Heart extends Rect {}
+
+export interface Coin extends Rect {}
+
 export interface World {
   player: Player;
   walls: Rect[];
   cacti: Cactus[];
   patrols: Patrol[];
+  hearts: Heart[];
+  coins: Coin[];
+  score: number;
+  rngState: number;
   mapWidth: number;
   mapHeight: number;
 }
@@ -59,6 +67,10 @@ export function createWorld(): World {
     walls: [],
     cacti: [],
     patrols: [],
+    hearts: [],
+    coins: [],
+    score: 0,
+    rngState: 12345,
     mapWidth: 800,
     mapHeight: 600,
   };

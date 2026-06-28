@@ -1,5 +1,21 @@
-import { World, Input, Cactus, Patrol, Rect } from "./world.js";
+import { World, Input, Cactus, Patrol, Rect, Heart, Coin } from "./world.js";
 import { clampToMap, resolveX, resolveY } from "./collision.js";
+
+function nextRng(state: number): { value: number; state: number } {
+  const newState = (state * 1664525 + 1013904223) & 0xffffffff;
+  return { value: (newState >>> 0) / 0x100000000, state: newState };
+}
+
+function spawnCoin(world: World): { coin: Coin; rngState: number } {
+  const margin = 40;
+  let { value: rx, state: s1 } = nextRng(world.rngState);
+  let { value: ry, state: s2 } = nextRng(s1);
+  
+  const x = margin + rx * (world.mapWidth - margin * 2);
+  const y = margin + ry * (world.mapHeight - margin * 2);
+  
+  return { coin: { x, y, w: 20, h: 20 }, rngState: s2 };
+}
 
 function rectIntersects(
   ax: number,
@@ -191,6 +207,52 @@ export function update(world: World, input: Input, dt: number): World {
     finalAnimPhase += dt * 10;
   }
 
+  let remainingHearts = [...world.hearts];
+  for (let i = remainingHearts.length - 1; i >= 0; i--) {
+    const heart = remainingHearts[i];
+    const steps = 10;
+    let collected = false;
+    for (let s = 0; s <= steps; s++) {
+      const t = s / steps;
+      const checkX = player.x + (finalX - player.x) * t;
+      const checkY = player.y + (finalY - player.y) * t;
+      if (rectIntersects(checkX, checkY, player.w, player.h, heart.x, heart.y, heart.w, heart.h)) {
+        collected = true;
+        break;
+      }
+    }
+    if (collected && finalHp < player.maxHp) {
+      finalHp = Math.min(player.maxHp, finalHp + 10);
+      remainingHearts.splice(i, 1);
+    }
+  }
+
+  let finalScore = world.score;
+  let remainingCoins = [...world.coins];
+  let currentRngState = world.rngState;
+  
+  for (let i = remainingCoins.length - 1; i >= 0; i--) {
+    const coin = remainingCoins[i];
+    const steps = 10;
+    let collected = false;
+    for (let s = 0; s <= steps; s++) {
+      const t = s / steps;
+      const checkX = player.x + (finalX - player.x) * t;
+      const checkY = player.y + (finalY - player.y) * t;
+      if (rectIntersects(checkX, checkY, player.w, player.h, coin.x, coin.y, coin.w, coin.h)) {
+        collected = true;
+        break;
+      }
+    }
+    if (collected) {
+      finalScore += 1;
+      remainingCoins.splice(i, 1);
+      const spawnResult = spawnCoin({ ...world, coins: remainingCoins, rngState: currentRngState });
+      remainingCoins.push(spawnResult.coin);
+      currentRngState = spawnResult.rngState;
+    }
+  }
+
   if (hp <= 0) {
     finalX = player.spawnX;
     finalY = player.spawnY;
@@ -203,5 +265,9 @@ export function update(world: World, input: Input, dt: number): World {
     ...world,
     player: { ...player, x: finalX, y: finalY, hp: finalHp, invulnerableTimer: finalInvulnerableTimer, animPhase: finalAnimPhase },
     patrols: updatedPatrols,
+    hearts: remainingHearts,
+    coins: remainingCoins,
+    score: finalScore,
+    rngState: currentRngState,
   };
 }

@@ -13,11 +13,14 @@ export class Renderer {
     this.drawWalls(walls);
     this.drawCacti(cacti, totalTime);
     this.drawPatrols(patrols, totalTime);
+    this.drawHearts(world.hearts, totalTime);
+    this.drawCoins(world.coins, totalTime);
     this.drawPlayer(player);
 
     ctx.fillStyle = "#fff";
     ctx.font = "16px monospace";
     ctx.fillText(`HP: ${player.hp}`, 10, 20);
+    ctx.fillText(`Score: ${world.score}`, mapWidth - 100, 20);
   }
 
   private drawWalls(walls: { x: number; y: number; w: number; h: number }[]): void {
@@ -83,6 +86,46 @@ export class Renderer {
       ctx.fillStyle = "#822";
       ctx.fillRect(x + patrol.w * 0.2, y + bodyH, legW, legH + legOffset);
       ctx.fillRect(x + patrol.w * 0.5, y + bodyH, legW, legH - legOffset);
+    }
+  }
+
+  private drawHearts(hearts: { x: number; y: number; w: number; h: number }[], totalTime: number): void {
+    const { ctx } = this;
+
+    for (const heart of hearts) {
+      const pulse = 1 + Math.sin(totalTime * 4) * 0.1;
+      const size = heart.w * pulse;
+      const offsetX = (heart.w - size) / 2;
+      const offsetY = (heart.h - size) / 2;
+
+      ctx.fillStyle = "#f44";
+      ctx.beginPath();
+      const cx = heart.x + heart.w / 2;
+      const cy = heart.y + heart.h / 2;
+      const topY = cy - size * 0.3;
+      ctx.moveTo(cx, cy + size * 0.4);
+      ctx.bezierCurveTo(cx - size * 0.5, cy, cx - size * 0.5, topY, cx, topY + size * 0.1);
+      ctx.bezierCurveTo(cx + size * 0.5, topY, cx + size * 0.5, cy, cx, cy + size * 0.4);
+      ctx.fill();
+    }
+  }
+
+  private drawCoins(coins: { x: number; y: number; w: number; h: number }[], totalTime: number): void {
+    const { ctx } = this;
+
+    for (const coin of coins) {
+      const pulse = 1 + Math.sin(totalTime * 3 + coin.x * 0.1) * 0.1;
+      const size = coin.w * pulse;
+
+      ctx.fillStyle = "#fc0";
+      ctx.beginPath();
+      ctx.arc(coin.x + coin.w / 2, coin.y + coin.h / 2, size / 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#da0";
+      ctx.beginPath();
+      ctx.arc(coin.x + coin.w / 2, coin.y + coin.h / 2, size / 4, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
 
