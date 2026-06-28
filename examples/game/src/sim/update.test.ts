@@ -22,6 +22,9 @@ function makeWorld(overrides: Partial<World> = {}): World {
     patrols: [],
     hearts: [],
     coins: [],
+    rivers: [],
+    bridges: [],
+    riverFlowOffset: 0,
     score: 0,
     rngState: 12345,
     mapWidth: 800,
@@ -472,5 +475,118 @@ describe("score-coins", () => {
     
     next = update(next, input, 0.9);
     expect(next.score).toBe(5);
+  });
+});
+
+// story: river
+describe("river", () => {
+  // story: river — сценарий 1: река на карте
+  it("river is present on the map", () => {
+    const river = { x: 400, y: 0, w: 40, h: 600 };
+    const world = makeWorld({ rivers: [river] });
+    expect(world.rivers.length).toBe(1);
+    expect(world.rivers[0].x).toBe(400);
+    expect(world.rivers[0].w).toBe(40);
+  });
+
+  // story: river — сценарий 2: вода течёт
+  it("water flows — flow offset changes over time", () => {
+    const river = { x: 400, y: 0, w: 40, h: 600 };
+    const world = makeWorld({ rivers: [river] });
+    expect(world.riverFlowOffset).toBe(0);
+
+    const input: Input = { dx: 0, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.riverFlowOffset).toBeGreaterThan(0);
+
+    const next2 = update(next, input, 1);
+    expect(next2.riverFlowOffset).toBeGreaterThan(next.riverFlowOffset);
+  });
+
+  // story: river — сценарий 3: не пройти
+  it("player cannot pass through river", () => {
+    const river = { x: 200, y: 0, w: 40, h: 600 };
+    const world = makeWorld({ rivers: [river] });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.x + next.player.w).toBeLessThanOrEqual(200);
+    expect(next.player.x + next.player.w).toBeCloseTo(200, 5);
+  });
+
+  // story: river — сценарий 4: скольжение вдоль берега
+  it("player slides along river bank", () => {
+    const river = { x: 200, y: 0, w: 40, h: 600 };
+    const world = makeWorld({ rivers: [river] });
+    const input: Input = { dx: 1, dy: 1 };
+    const next = update(world, input, 1);
+    expect(next.player.x + next.player.w).toBeLessThanOrEqual(200);
+    expect(next.player.y).toBeGreaterThan(100);
+  });
+
+  // story: river — сценарий 5: река на месте
+  it("river stays in place and does not grow", () => {
+    const river = { x: 400, y: 0, w: 40, h: 600 };
+    const world = makeWorld({ rivers: [river] });
+    const input: Input = { dx: 0, dy: 0 };
+    const next = update(world, input, 10);
+    expect(next.rivers[0].x).toBe(400);
+    expect(next.rivers[0].y).toBe(0);
+    expect(next.rivers[0].w).toBe(40);
+    expect(next.rivers[0].h).toBe(600);
+  });
+});
+
+// story: bridge
+describe("bridge", () => {
+  // story: bridge — сценарий 1: мост на реке
+  it("bridge is present on the river", () => {
+    const river = { x: 400, y: 0, w: 40, h: 600 };
+    const bridge = { x: 380, y: 250, w: 80, h: 20 };
+    const world = makeWorld({ rivers: [river], bridges: [bridge] });
+    expect(world.bridges.length).toBe(1);
+    expect(world.bridges[0].x).toBe(380);
+    expect(world.bridges[0].y).toBe(250);
+  });
+
+  // story: bridge — сценарий 2: проход по мосту
+  it("player can cross the river via bridge", () => {
+    const river = { x: 200, y: 0, w: 40, h: 600 };
+    const bridge = { x: 180, y: 90, w: 80, h: 40 };
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 100, y: 100 },
+      rivers: [river],
+      bridges: [bridge],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.x).toBeGreaterThan(240);
+  });
+
+  // story: bridge — сценарий 3: не пройти вне моста
+  it("player cannot pass through river outside bridge", () => {
+    const river = { x: 200, y: 0, w: 40, h: 600 };
+    const bridge = { x: 180, y: 90, w: 80, h: 40 };
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 100, y: 300 },
+      rivers: [river],
+      bridges: [bridge],
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 1);
+    expect(next.player.x + next.player.w).toBeLessThanOrEqual(200);
+    expect(next.player.x + next.player.w).toBeCloseTo(200, 5);
+  });
+
+  // story: bridge — сценарий 4: мост на месте
+  it("bridge stays in place", () => {
+    const river = { x: 400, y: 0, w: 40, h: 600 };
+    const bridge = { x: 380, y: 250, w: 80, h: 20 };
+    const world = makeWorld({ rivers: [river], bridges: [bridge] });
+    const input: Input = { dx: 0, dy: 0 };
+    const next = update(world, input, 10);
+    expect(next.bridges[0].x).toBe(380);
+    expect(next.bridges[0].y).toBe(250);
+    expect(next.bridges[0].w).toBe(80);
+    expect(next.bridges[0].h).toBe(20);
   });
 });

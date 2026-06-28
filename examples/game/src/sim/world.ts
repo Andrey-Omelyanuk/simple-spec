@@ -31,6 +31,10 @@ export interface Heart extends Rect {}
 
 export interface Coin extends Rect {}
 
+export interface River extends Rect {}
+
+export interface Bridge extends Rect {}
+
 export interface World {
   player: Player;
   walls: Rect[];
@@ -38,6 +42,9 @@ export interface World {
   patrols: Patrol[];
   hearts: Heart[];
   coins: Coin[];
+  rivers: River[];
+  bridges: Bridge[];
+  riverFlowOffset: number;
   score: number;
   rngState: number;
   mapWidth: number;
@@ -69,6 +76,9 @@ export function createWorld(): World {
     patrols: [],
     hearts: [],
     coins: [],
+    rivers: [],
+    bridges: [],
+    riverFlowOffset: 0,
     score: 0,
     rngState: 12345,
     mapWidth: 800,

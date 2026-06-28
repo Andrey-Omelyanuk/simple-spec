@@ -33,6 +33,12 @@ world.coins = [
   { x: 400, y: 300, w: 20, h: 20 },
   { x: 600, y: 150, w: 20, h: 20 },
 ];
+world.rivers = [
+  { x: 400, y: 0, w: 40, h: 600 },
+];
+world.bridges = [
+  { x: 380, y: 280, w: 80, h: 30 },
+];
 
 const inputHandler = new InputHandler();
 const renderer = new Renderer(ctx);

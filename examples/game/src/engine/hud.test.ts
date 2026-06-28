@@ -9,7 +9,8 @@ function makeWorld(overrides: Partial<World> = {}): World {
       hp: 100, maxHp: 100, spawnX: 100, spawnY: 100,
       invulnerableTimer: 0, animPhase: 0,
     },
-    walls: [], cacti: [], patrols: [], hearts: [], coins: [],
+    walls: [], cacti: [], patrols: [], hearts: [], coins: [], rivers: [], bridges: [],
+    riverFlowOffset: 0,
     score: 0, rngState: 12345, mapWidth: 800, mapHeight: 600,
     ...overrides,
   };

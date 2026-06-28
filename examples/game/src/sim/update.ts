@@ -1,4 +1,4 @@
-import { World, Input, Cactus, Patrol, Rect, Heart, Coin } from "./world.js";
+import { World, Input, Cactus, Patrol, Rect, Heart, Coin, River, Bridge } from "./world.js";
 import { clampToMap, resolveX, resolveY } from "./collision.js";
 
 function nextRng(state: number): { value: number; state: number } {
@@ -28,6 +28,44 @@ function rectIntersects(
   bh: number,
 ): boolean {
   return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+}
+
+function subtractRect(a: Rect, b: Rect): Rect[] {
+  if (!rectIntersects(a.x, a.y, a.w, a.h, b.x, b.y, b.w, b.h)) return [a];
+
+  const ix1 = Math.max(a.x, b.x);
+  const iy1 = Math.max(a.y, b.y);
+  const ix2 = Math.min(a.x + a.w, b.x + b.w);
+  const iy2 = Math.min(a.y + a.h, b.y + b.h);
+
+  const result: Rect[] = [];
+
+  if (ix1 > a.x) {
+    result.push({ x: a.x, y: a.y, w: ix1 - a.x, h: a.h });
+  }
+  if (ix2 < a.x + a.w) {
+    result.push({ x: ix2, y: a.y, w: (a.x + a.w) - ix2, h: a.h });
+  }
+  if (iy1 > a.y) {
+    result.push({ x: ix1, y: a.y, w: ix2 - ix1, h: iy1 - a.y });
+  }
+  if (iy2 < a.y + a.h) {
+    result.push({ x: ix1, y: iy2, w: ix2 - ix1, h: (a.y + a.h) - iy2 });
+  }
+
+  return result;
+}
+
+function buildObstacles(walls: Rect[], rivers: Rect[], bridges: Rect[]): Rect[] {
+  let riverObstacles: Rect[] = [...rivers];
+  for (const bridge of bridges) {
+    const next: Rect[] = [];
+    for (const segment of riverObstacles) {
+      next.push(...subtractRect(segment, bridge));
+    }
+    riverObstacles = next;
+  }
+  return [...walls, ...riverObstacles];
 }
 
 function resolveCactusCollision(
@@ -127,9 +165,13 @@ function updatePatrols(patrols: Patrol[], dt: number, walls: Rect[], mapWidth: n
 }
 
 export function update(world: World, input: Input, dt: number): World {
-  const { player, walls, cacti, patrols, mapWidth, mapHeight } = world;
+  const { player, walls, cacti, patrols, rivers, bridges, mapWidth, mapHeight } = world;
 
-  const updatedPatrols = updatePatrols(patrols, dt, walls, mapWidth, mapHeight);
+  const obstacles = buildObstacles(walls, rivers, bridges);
+
+  const updatedPatrols = updatePatrols(patrols, dt, obstacles, mapWidth, mapHeight);
+
+  const riverFlowOffset = world.riverFlowOffset + dt * 50;
 
   const invulnerableTimer = Math.max(0, player.invulnerableTimer - dt);
 
@@ -142,11 +184,11 @@ export function update(world: World, input: Input, dt: number): World {
 
   let x = player.x + moveX;
   x = clampToMap(x, player.y, player.w, player.h, mapWidth, mapHeight).x;
-  x = resolveX(player.x, player.y, player.w, player.h, x, walls);
+  x = resolveX(player.x, player.y, player.w, player.h, x, obstacles);
 
   let y = player.y + moveY;
   y = clampToMap(x, y, player.w, player.h, mapWidth, mapHeight).y;
-  y = resolveY(x, player.y, player.w, player.h, y, walls);
+  y = resolveY(x, player.y, player.w, player.h, y, obstacles);
 
   let hp = player.hp;
   let bounced = false;
@@ -165,9 +207,9 @@ export function update(world: World, input: Input, dt: number): World {
       }
 
       x = clampToMap(x, y, player.w, player.h, mapWidth, mapHeight).x;
-      x = resolveX(player.x, y, player.w, player.h, x, walls);
+      x = resolveX(player.x, y, player.w, player.h, x, obstacles);
       y = clampToMap(x, y, player.w, player.h, mapWidth, mapHeight).y;
-      y = resolveY(x, player.y, player.w, player.h, y, walls);
+      y = resolveY(x, player.y, player.w, player.h, y, obstacles);
     }
   }
 
@@ -186,9 +228,9 @@ export function update(world: World, input: Input, dt: number): World {
       }
 
       x = clampToMap(x, y, player.w, player.h, mapWidth, mapHeight).x;
-      x = resolveX(player.x, y, player.w, player.h, x, walls);
+      x = resolveX(player.x, y, player.w, player.h, x, obstacles);
       y = clampToMap(x, y, player.w, player.h, mapWidth, mapHeight).y;
-      y = resolveY(x, player.y, player.w, player.h, y, walls);
+      y = resolveY(x, player.y, player.w, player.h, y, obstacles);
     }
   }
 
@@ -267,6 +309,7 @@ export function update(world: World, input: Input, dt: number): World {
     patrols: updatedPatrols,
     hearts: remainingHearts,
     coins: remainingCoins,
+    riverFlowOffset,
     score: finalScore,
     rngState: currentRngState,
   };

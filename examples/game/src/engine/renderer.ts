@@ -12,6 +12,8 @@ export class Renderer {
     ctx.fillRect(0, 0, mapWidth, mapHeight);
 
     this.drawWalls(walls);
+    this.drawRivers(world.rivers, world.riverFlowOffset);
+    this.drawBridges(world.bridges);
     this.drawCacti(cacti, totalTime);
     this.drawPatrols(patrols, totalTime);
     this.drawHearts(world.hearts, totalTime);
@@ -48,6 +50,80 @@ export class Renderer {
           ctx.fillStyle = "#555";
           ctx.fillRect(x, y + bh - 3, bw, 3);
           ctx.fillRect(x + bw - 3, y, 3, bh);
+        }
+      }
+    }
+  }
+
+  private drawRivers(rivers: { x: number; y: number; w: number; h: number }[], flowOffset: number): void {
+    const { ctx } = this;
+
+    for (const river of rivers) {
+      ctx.fillStyle = "#26c";
+      ctx.fillRect(river.x, river.y, river.w, river.h);
+
+      ctx.strokeStyle = "#48f";
+      ctx.lineWidth = 2;
+      const isVertical = river.h > river.w;
+      if (isVertical) {
+        for (let col = 0; col < river.w; col += 12) {
+          ctx.beginPath();
+          for (let row = 0; row < river.h; row += 4) {
+            const wave = Math.sin((row + flowOffset + col * 3) * 0.1) * 3;
+            const x = river.x + col + wave;
+            const y = river.y + row;
+            if (row === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+      } else {
+        for (let row = 0; row < river.h; row += 12) {
+          ctx.beginPath();
+          for (let col = 0; col < river.w; col += 4) {
+            const wave = Math.sin((col + flowOffset + row * 3) * 0.1) * 3;
+            const x = river.x + col;
+            const y = river.y + row + wave;
+            if (col === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  private drawBridges(bridges: { x: number; y: number; w: number; h: number }[]): void {
+    const { ctx } = this;
+
+    for (const bridge of bridges) {
+      ctx.fillStyle = "#864";
+      ctx.fillRect(bridge.x, bridge.y, bridge.w, bridge.h);
+
+      ctx.fillStyle = "#a86";
+      ctx.fillRect(bridge.x, bridge.y, bridge.w, 3);
+      ctx.fillRect(bridge.x, bridge.y, 3, bridge.h);
+
+      ctx.fillStyle = "#642";
+      ctx.fillRect(bridge.x, bridge.y + bridge.h - 3, bridge.w, 3);
+      ctx.fillRect(bridge.x + bridge.w - 3, bridge.y, 3, bridge.h);
+
+      ctx.strokeStyle = "#753";
+      ctx.lineWidth = 1;
+      const isHorizontal = bridge.w > bridge.h;
+      if (isHorizontal) {
+        for (let col = 0; col < bridge.w; col += 10) {
+          ctx.beginPath();
+          ctx.moveTo(bridge.x + col, bridge.y);
+          ctx.lineTo(bridge.x + col, bridge.y + bridge.h);
+          ctx.stroke();
+        }
+      } else {
+        for (let row = 0; row < bridge.h; row += 10) {
+          ctx.beginPath();
+          ctx.moveTo(bridge.x, bridge.y + row);
+          ctx.lineTo(bridge.x + bridge.w, bridge.y + row);
+          ctx.stroke();
         }
       }
     }
