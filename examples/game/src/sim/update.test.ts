@@ -1,4 +1,4 @@
-// story: base
+// object: player
 import { update } from "./update.js";
 import { World, Input } from "./world.js";
 
@@ -41,7 +41,7 @@ function makeWorld(overrides: Partial<World> = {}): World {
 }
 
 describe("base", () => {
-  // story: base — сценарий 1: стоит на месте
+  // object: player — сценарий 1: стоит на месте
   it("does not move when no input", () => {
     const world = makeWorld();
     const input: Input = { dx: 0, dy: 0 };
@@ -50,7 +50,7 @@ describe("base", () => {
     expect(next.player.y).toBe(100);
   });
 
-  // story: base — сценарий 2: идёт в сторону
+  // object: player — сценарий 2: идёт в сторону
   it("moves in a direction", () => {
     const world = makeWorld();
     const input: Input = { dx: 1, dy: 0 };
@@ -59,7 +59,7 @@ describe("base", () => {
     expect(next.player.y).toBe(100);
   });
 
-  // story: base — сценарий 3: диагональ не быстрее прямой
+  // object: player — сценарий 3: диагональ не быстрее прямой
   it("moves diagonally at the same speed as straight", () => {
     const world = makeWorld();
     const input: Input = { dx: 1, dy: 1 };
@@ -70,7 +70,7 @@ describe("base", () => {
     expect(dist).toBeCloseTo(200, 5);
   });
 
-  // story: base — сценарий 4: упирается в стену
+  // object: player — сценарий 4: упирается в стену
   it("stops at a wall", () => {
     const wall = { x: 200, y: 80, w: 20, h: 60 };
     const world = makeWorld({ walls: [wall] });
@@ -80,7 +80,7 @@ describe("base", () => {
     expect(next.player.x + next.player.w).toBeCloseTo(200, 5);
   });
 
-  // story: base — сценарий 5: скользит вдоль стены
+  // object: player — сценарий 5: скользит вдоль стены
   it("slides along a wall", () => {
     const wall = { x: 200, y: 0, w: 20, h: 200 };
     const world = makeWorld({ walls: [wall] });
@@ -90,7 +90,7 @@ describe("base", () => {
     expect(next.player.y).toBeGreaterThan(100);
   });
 
-  // story: base — сценарий 6: не уходит за край карты
+  // object: player — сценарий 6: не уходит за край карты
   it("does not leave the map", () => {
     const world = makeWorld();
     const input: Input = { dx: -1, dy: -1 };
@@ -100,9 +100,9 @@ describe("base", () => {
   });
 });
 
-// story: cactus-enemy
+// object: cactus
 describe("cactus-enemy", () => {
-  // story: cactus-enemy — сценарий 1: кактус стоит на месте
+  // object: cactus — сценарий 1: кактус стоит на месте
   it("cactus does not move", () => {
     const cactus = { x: 200, y: 100, w: 20, h: 20 };
     const world = makeWorld({ cacti: [cactus] });
@@ -112,7 +112,7 @@ describe("cactus-enemy", () => {
     expect(next.cacti[0].y).toBe(100);
   });
 
-  // story: cactus-enemy — сценарий 2: касание — урон
+  // object: cactus — сценарий 2: касание — урон
   it("player takes damage on cactus touch", () => {
     const cactus = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({ cacti: [cactus] });
@@ -122,7 +122,7 @@ describe("cactus-enemy", () => {
     expect(next.player.hp).toBe(90);
   });
 
-  // story: cactus-enemy — сценарий 3: касание — отскок
+  // object: cactus — сценарий 3: касание — отскок
   it("player bounces away from cactus", () => {
     const cactus = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({ cacti: [cactus] });
@@ -131,7 +131,7 @@ describe("cactus-enemy", () => {
     expect(next.player.x).toBeLessThan(115);
   });
 
-  // story: cactus-enemy — сценарий 4: повторный урон
+  // object: cactus — сценарий 4: повторный урон
   it("player takes damage on each touch", () => {
     const cactus = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({ cacti: [cactus] });
@@ -148,7 +148,7 @@ describe("cactus-enemy", () => {
     expect(next.player.hp).toBe(80);
   });
 
-  // story: cactus-enemy — сценарий 5: отскок в стену
+  // object: cactus — сценарий 5: отскок в стену
   it("bounce respects walls", () => {
     const wall = { x: 0, y: 0, w: 20, h: 200 };
     const cactus = { x: 25, y: 100, w: 20, h: 20 };
@@ -164,16 +164,16 @@ describe("cactus-enemy", () => {
   });
 });
 
-// story: player-lives
+// object: player
 describe("player-lives", () => {
-  // story: player-lives — сценарий 1: здоровье при появлении
+  // object: player — сценарий 1: здоровье при появлении
   it("player spawns with full health", () => {
     const world = makeWorld();
     expect(world.player.hp).toBe(100);
     expect(world.player.maxHp).toBe(100);
   });
 
-  // story: player-lives — сценарий 2: урон уменьшает здоровье
+  // object: player — сценарий 2: урон уменьшает здоровье
   it("damage reduces health but not below zero", () => {
     const cactus = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({ player: { ...makeWorld().player, hp: 15 }, cacti: [cactus] });
@@ -182,7 +182,7 @@ describe("player-lives", () => {
     expect(next.player.hp).toBe(5);
   });
 
-  // story: player-lives — сценарий 3: смерть и возрождение
+  // object: player — сценарий 3: смерть и возрождение
   it("player respawns at spawn point with full health on death", () => {
     const cactus = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({
@@ -197,7 +197,7 @@ describe("player-lives", () => {
     expect(next.player.invulnerableTimer).toBe(0);
   });
 
-  // story: player-lives — сценарий 4: мигание после удара
+  // object: player — сценарий 4: мигание после удара
   it("player becomes invulnerable after taking damage", () => {
     const cactus = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({ cacti: [cactus] });
@@ -206,7 +206,7 @@ describe("player-lives", () => {
     expect(next.player.invulnerableTimer).toBe(1);
   });
 
-  // story: player-lives — сценарий 5: неуязвимость во время мигания
+  // object: player — сценарий 5: неуязвимость во время мигания
   it("player takes no damage while invulnerable", () => {
     const cactus = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({
@@ -219,7 +219,7 @@ describe("player-lives", () => {
     expect(next.player.invulnerableTimer).toBeGreaterThan(0);
   });
 
-  // story: player-lives — сценарий 6: уязвимость после мигания
+  // object: player — сценарий 6: уязвимость после мигания
   it("player takes damage after invulnerability ends", () => {
     const cactus = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({
@@ -232,9 +232,9 @@ describe("player-lives", () => {
   });
 });
 
-// story: patrol-enemy
+// object: patrol
 describe("patrol-enemy", () => {
-  // story: patrol-enemy — сценарий 1: идёт по маршруту
+  // object: patrol — сценарий 1: идёт по маршруту
   it("patrol moves along its route", () => {
     const patrol = {
       x: 200, y: 100, w: 20, h: 20,
@@ -251,7 +251,7 @@ describe("patrol-enemy", () => {
     expect(next.patrols[0].progress).toBeLessThanOrEqual(1);
   });
 
-  // story: patrol-enemy — сценарий 2: разворот в конце
+  // object: patrol — сценарий 2: разворот в конце
   it("patrol turns around at the end of route", () => {
     const patrol = {
       x: 400, y: 100, w: 20, h: 20,
@@ -267,7 +267,7 @@ describe("patrol-enemy", () => {
     expect(next.patrols[0].direction).toBe(-1);
   });
 
-  // story: patrol-enemy — сценарий 3: касание — урон
+  // object: patrol — сценарий 3: касание — урон
   it("player takes damage on patrol touch", () => {
     const patrol = {
       x: 115, y: 100, w: 20, h: 20,
@@ -283,7 +283,7 @@ describe("patrol-enemy", () => {
     expect(next.player.hp).toBe(90);
   });
 
-  // story: patrol-enemy — сценарий 4: касание — отскок
+  // object: patrol — сценарий 4: касание — отскок
   it("player bounces away from patrol", () => {
     const patrol = {
       x: 115, y: 100, w: 20, h: 20,
@@ -299,7 +299,7 @@ describe("patrol-enemy", () => {
     expect(next.player.x).toBeLessThan(115);
   });
 
-  // story: patrol-enemy — сценарий 5: патрульный не проходит сквозь стены
+  // object: patrol — сценарий 5: патрульный не проходит сквозь стены
   it("patrol does not pass through walls", () => {
     const wall = { x: 250, y: 80, w: 20, h: 60 };
     const patrol = {
@@ -316,7 +316,7 @@ describe("patrol-enemy", () => {
     expect(next.patrols[0].direction).toBe(-1);
   });
 
-  // story: patrol-enemy — сценарий 6: патрульный не уходит за край карты
+  // object: patrol — сценарий 6: патрульный не уходит за край карты
   it("patrol does not leave the map", () => {
     const patrol = {
       x: 750, y: 100, w: 20, h: 20,
@@ -333,9 +333,9 @@ describe("patrol-enemy", () => {
   });
 });
 
-// story: health-heart
+// object: heart
 describe("health-heart", () => {
-  // story: health-heart — сценарий 1: сердечки на карте
+  // object: heart — сценарий 1: сердечки на карте
   it("hearts are present on the map at start", () => {
     const heart = { x: 300, y: 300, w: 20, h: 20 };
     const world = makeWorld({ hearts: [heart] });
@@ -344,7 +344,7 @@ describe("health-heart", () => {
     expect(world.hearts[0].y).toBe(300);
   });
 
-  // story: health-heart — сценарий 2: подбор сердечка
+  // object: heart — сценарий 2: подбор сердечка
   it("picking up a heart restores health and removes it", () => {
     const heart = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({
@@ -357,7 +357,7 @@ describe("health-heart", () => {
     expect(next.hearts.length).toBe(0);
   });
 
-  // story: health-heart — сценарий 3: здоровье не выше максимума
+  // object: player — сценарий 3: здоровье не выше максимума
   it("health does not exceed maximum after picking up heart", () => {
     const heart = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({
@@ -370,7 +370,7 @@ describe("health-heart", () => {
     expect(next.hearts.length).toBe(0);
   });
 
-  // story: health-heart — сценарий 4: полное здоровье
+  // object: heart — сценарий 4: полное здоровье
   it("heart is not consumed when health is full", () => {
     const heart = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({
@@ -383,7 +383,7 @@ describe("health-heart", () => {
     expect(next.hearts.length).toBe(1);
   });
 
-  // story: health-heart — сценарий 5: сердечко исчезает навсегда
+  // object: heart — сценарий 5: сердечко исчезает навсегда
   it("picked up heart does not reappear", () => {
     const heart = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({
@@ -400,16 +400,16 @@ describe("health-heart", () => {
   });
 });
 
-// story: score-coins
+// object: coin
 describe("score-coins", () => {
-  // story: score-coins — сценарий 1: счёт при появлении
+  // object: score — сценарий 1: счёт при появлении
   it("score is zero and 2 coins on map at game start", () => {
     const world = makeWorld({ coins: [{ x: 100, y: 200, w: 20, h: 20 }, { x: 300, y: 400, w: 20, h: 20 }] });
     expect(world.score).toBe(0);
     expect(world.coins.length).toBe(2);
   });
 
-  // story: score-coins — сценарий 2: подбор монетки
+  // object: coin — сценарий 2: подбор монетки
   it("picking up a coin increases score by 1 and spawns new one", () => {
     const coin = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({ coins: [coin, { x: 500, y: 500, w: 20, h: 20 }] });
@@ -419,7 +419,7 @@ describe("score-coins", () => {
     expect(next.coins.length).toBe(2);
   });
 
-  // story: score-coins — сценарий 3: несколько монеток
+  // object: coin — сценарий 3: несколько монеток
   it("picking up multiple coins increases score accordingly", () => {
     const coin1 = { x: 115, y: 100, w: 20, h: 20 };
     const coin2 = { x: 250, y: 100, w: 20, h: 20 };
@@ -435,7 +435,7 @@ describe("score-coins", () => {
     expect(next.coins.length).toBe(2);
   });
 
-  // story: score-coins — сценарий 4: всегда 2 монетки
+  // object: coin — сценарий 4: всегда 2 монетки
   it("always 2 coins on map - new one spawns when picked up", () => {
     const coin = { x: 115, y: 100, w: 20, h: 20 };
     const world = makeWorld({ coins: [coin, { x: 500, y: 500, w: 20, h: 20 }] });
@@ -448,7 +448,7 @@ describe("score-coins", () => {
     expect(next.coins.length).toBe(2);
   });
 
-  // story: score-coins — сценарий 5: счёт при смерти
+  // object: score — сценарий 5: счёт при смерти
   it("score persists after death and respawn", () => {
     const cactus = { x: 200, y: 100, w: 20, h: 20 };
     const coin = { x: 115, y: 100, w: 20, h: 20 };
@@ -470,7 +470,7 @@ describe("score-coins", () => {
     expect(next.score).toBe(3);
   });
 
-  // story: score-coins — сценарий 6 (значение): счёт растёт до 5; отображение — в hud.test.ts
+  // object: score — сценарий 6 (значение): счёт растёт до 5; отображение — в hud.test.ts
   it("score value is tracked in world state", () => {
     const coin1 = { x: 115, y: 100, w: 20, h: 20 };
     const coin2 = { x: 300, y: 100, w: 20, h: 20 };
@@ -485,9 +485,9 @@ describe("score-coins", () => {
   });
 });
 
-// story: river
+// object: river
 describe("river", () => {
-  // story: river — сценарий 1: река на карте
+  // object: river — сценарий 1: река на карте
   it("river is present on the map", () => {
     const river = { x: 400, y: 0, w: 40, h: 600 };
     const world = makeWorld({ rivers: [river] });
@@ -496,7 +496,7 @@ describe("river", () => {
     expect(world.rivers[0].w).toBe(40);
   });
 
-  // story: river — сценарий 2: вода течёт
+  // object: river — сценарий 2: вода течёт
   it("water flows — flow offset changes over time", () => {
     const river = { x: 400, y: 0, w: 40, h: 600 };
     const world = makeWorld({ rivers: [river] });
@@ -510,7 +510,7 @@ describe("river", () => {
     expect(next2.riverFlowOffset).toBeGreaterThan(next.riverFlowOffset);
   });
 
-  // story: river — сценарий 3: не пройти
+  // object: river — сценарий 3: не пройти
   it("player cannot pass through river", () => {
     const river = { x: 200, y: 0, w: 40, h: 600 };
     const world = makeWorld({ rivers: [river] });
@@ -520,7 +520,7 @@ describe("river", () => {
     expect(next.player.x + next.player.w).toBeCloseTo(200, 5);
   });
 
-  // story: river — сценарий 4: скольжение вдоль берега
+  // object: river — сценарий 4: скольжение вдоль берега
   it("player slides along river bank", () => {
     const river = { x: 200, y: 0, w: 40, h: 600 };
     const world = makeWorld({ rivers: [river] });
@@ -530,7 +530,7 @@ describe("river", () => {
     expect(next.player.y).toBeGreaterThan(100);
   });
 
-  // story: river — сценарий 5: река на месте
+  // object: river — сценарий 5: река на месте
   it("river stays in place and does not grow", () => {
     const river = { x: 400, y: 0, w: 40, h: 600 };
     const world = makeWorld({ rivers: [river] });
@@ -543,13 +543,13 @@ describe("river", () => {
   });
 });
 
-// story: bridge
+// object: bridge
 describe("bridge", () => {
   const PLAYER_SIZE = 20;
   const river = { x: 200, y: 0, w: 40, h: 600 };
   const bridge = { x: 180, y: 60, w: 80, h: PLAYER_SIZE * 4 };
 
-  // story: bridge — сценарий 1: мост на реке шириной 3-4 персонажа
+  // object: bridge — сценарий 1: мост на реке шириной 3-4 персонажа
   it("bridge is present on the river and is 3-4 player widths wide", () => {
     const world = makeWorld({ rivers: [river], bridges: [bridge] });
     expect(world.bridges.length).toBe(1);
@@ -557,7 +557,7 @@ describe("bridge", () => {
     expect(world.bridges[0].h).toBeLessThanOrEqual(PLAYER_SIZE * 4);
   });
 
-  // story: bridge — сценарий 2: проход по мосту
+  // object: bridge — сценарий 2: проход по мосту
   it("player can cross the river via bridge", () => {
     const world = makeWorld({
       player: { ...makeWorld().player, x: 100, y: 100 },
@@ -569,7 +569,7 @@ describe("bridge", () => {
     expect(next.player.x).toBeGreaterThan(240);
   });
 
-  // story: bridge — сценарий 3: не пройти вне моста
+  // object: bridge — сценарий 3: не пройти вне моста
   it("player cannot pass through river outside bridge", () => {
     const world = makeWorld({
       player: { ...makeWorld().player, x: 100, y: 300 },
@@ -582,7 +582,7 @@ describe("bridge", () => {
     expect(next.player.x + next.player.w).toBeCloseTo(200, 5);
   });
 
-  // story: bridge — сценарий 4: мост широкий — проход по верхнему краю
+  // object: bridge — сценарий 4: мост широкий — проход по верхнему краю
   it("player can cross at the top edge of the wide bridge", () => {
     const world = makeWorld({
       player: { ...makeWorld().player, x: 100, y: 60 },
@@ -594,7 +594,7 @@ describe("bridge", () => {
     expect(next.player.x).toBeGreaterThan(240);
   });
 
-  // story: bridge — сценарий 4: мост широкий — проход по центру
+  // object: bridge — сценарий 4: мост широкий — проход по центру
   it("player can cross at the center of the wide bridge", () => {
     const world = makeWorld({
       player: { ...makeWorld().player, x: 100, y: 100 },
@@ -606,7 +606,7 @@ describe("bridge", () => {
     expect(next.player.x).toBeGreaterThan(240);
   });
 
-  // story: bridge — сценарий 4: мост широкий — проход по нижнему краю
+  // object: bridge — сценарий 4: мост широкий — проход по нижнему краю
   it("player can cross at the bottom edge of the wide bridge", () => {
     const world = makeWorld({
       player: { ...makeWorld().player, x: 100, y: 120 },
@@ -618,7 +618,7 @@ describe("bridge", () => {
     expect(next.player.x).toBeGreaterThan(240);
   });
 
-  // story: bridge — сценарий 5: мост на месте
+  // object: bridge — сценарий 5: мост на месте
   it("bridge stays in place", () => {
     const world = makeWorld({ rivers: [river], bridges: [bridge] });
     const input: Input = { dx: 0, dy: 0 };
@@ -630,9 +630,9 @@ describe("bridge", () => {
   });
 });
 
-// story: sword-attack
+// object: sword
 describe("sword-attack", () => {
-  // story: sword-attack — сценарий 1: покой без меча
+  // object: sword — сценарий 1: покой без меча
   it("sword is inactive when not attacking", () => {
     const world = makeWorld();
     const input: Input = { dx: 0, dy: 0, attack: false };
@@ -641,7 +641,7 @@ describe("sword-attack", () => {
     expect(next.swordCooldown).toBe(0);
   });
 
-  // story: sword-attack — сценарий 2: замах в сторону движения
+  // object: sword — сценарий 2: замах в сторону движения
   it("sword swings in the direction of last movement", () => {
     const world = makeWorld();
     let input: Input = { dx: 1, dy: 0, attack: false };
@@ -653,7 +653,7 @@ describe("sword-attack", () => {
     expect(next.swordDirection.dy).toBe(0);
   });
 
-  // story: sword-attack — сценарий 3: удар убивает патрульного
+  // object: sword — сценарий 3: удар убивает патрульного
   it("sword kills patrol in range", () => {
     const patrol = {
       x: 130, y: 100, w: 20, h: 20,
@@ -667,7 +667,7 @@ describe("sword-attack", () => {
     expect(next.patrols.length).toBe(0);
   });
 
-  // story: sword-attack — сценарий 4: удар срубает кактус
+  // object: sword — сценарий 4: удар срубает кактус
   it("sword kills cactus in range", () => {
     const cactus = { x: 130, y: 100, w: 20, h: 20 };
     const world = makeWorld({ cacti: [cactus] });
@@ -676,7 +676,7 @@ describe("sword-attack", () => {
     expect(next.cacti.length).toBe(0);
   });
 
-  // story: sword-attack — сценарий 5: промах
+  // object: sword — сценарий 5: промах
   it("sword does not hit enemy out of range", () => {
     const cactus = { x: 500, y: 100, w: 20, h: 20 };
     const world = makeWorld({ cacti: [cactus] });
@@ -685,7 +685,7 @@ describe("sword-attack", () => {
     expect(next.cacti.length).toBe(1);
   });
 
-  // story: sword-attack — сценарий 6: перезарядка
+  // object: sword — сценарий 6: перезарядка
   it("sword has cooldown after attack", () => {
     const world = makeWorld();
     let input: Input = { dx: 0, dy: 0, attack: true };
@@ -696,7 +696,7 @@ describe("sword-attack", () => {
     expect(next.swordTimer).toBeLessThan(0.2);
   });
 
-  // story: sword-attack — сценарий 7: направление по умолчанию
+  // object: sword — сценарий 7: направление по умолчанию
   it("sword swings right by default when no movement", () => {
     const world = makeWorld();
     const input: Input = { dx: 0, dy: 0, attack: true };
@@ -707,9 +707,9 @@ describe("sword-attack", () => {
   });
 });
 
-// story: levels
+// object: level
 describe("levels", () => {
-  // story: levels — сценарий 1: дверь появляется
+  // object: level — сценарий 1: дверь появляется
   it("door appears when score reaches 5", () => {
     const world = makeWorld({ score: 4, door: { x: 700, y: 500, w: 40, h: 40, visible: false } });
     const coin = { x: 115, y: 100, w: 20, h: 20 };
@@ -720,7 +720,7 @@ describe("levels", () => {
     expect(next.door.visible).toBe(true);
   });
 
-  // story: levels — сценарий 2: переход на следующий уровень
+  // object: level — сценарий 2: переход на следующий уровень
   it("player transitions to next level when entering door", () => {
     const world = makeWorld({
       score: 5,
@@ -736,7 +736,7 @@ describe("levels", () => {
     expect(next.player.y).toBe(100);
   });
 
-  // story: levels — сценарий 3: три уровня
+  // object: level — сценарий 3: три уровня
   it("after level 3 returns to level 1", () => {
     const world = makeWorld({
       level: 3,
@@ -750,7 +750,7 @@ describe("levels", () => {
     expect(next.player.hp).toBe(100);
   });
 
-  // story: levels — сценарий 4: разные карты
+  // object: level — сценарий 4: разные карты
   it("level 2 has different map than level 1", () => {
     const world = makeWorld({
       score: 5,
@@ -762,7 +762,7 @@ describe("levels", () => {
     expect(next.walls.length).toBeGreaterThan(0);
   });
 
-  // story: levels — сценарий 5: дверь исчезает при переходе
+  // object: level — сценарий 5: дверь исчезает при переходе
   it("door disappears after transitioning to new level", () => {
     const world = makeWorld({
       score: 5,
@@ -773,7 +773,7 @@ describe("levels", () => {
     expect(next.door.visible).toBe(false);
   });
 
-  // story: levels — сценарий 6: счёт для двери на каждом уровне
+  // object: level — сценарий 6: счёт для двери на каждом уровне
   it("door appears on level 2 when score reaches 5", () => {
     const world = makeWorld({
       level: 2,
@@ -789,9 +789,9 @@ describe("levels", () => {
   });
 });
 
-// story: portals
+// object: portal
 describe("portals", () => {
-  // story: portals — сценарий 1: порталы на карте
+  // object: portal — сценарий 1: порталы на карте
   it("portals are present on the map", () => {
     const portals = [
       { x: 100, y: 400, w: 30, h: 30 },
@@ -801,7 +801,7 @@ describe("portals", () => {
     expect(world.portals.length).toBe(2);
   });
 
-  // story: portals — сценарий 2: телепортация персонажа
+  // object: portal — сценарий 2: телепортация персонажа
   it("player teleports to the other portal", () => {
     const portals = [
       { x: 100, y: 400, w: 30, h: 30 },
@@ -817,7 +817,7 @@ describe("portals", () => {
     expect(next.player.y).toBeGreaterThan(80);
   });
 
-  // story: portals — сценарий 3: оба направления
+  // object: portal — сценарий 3: оба направления
   it("second portal teleports to the first", () => {
     const portals = [
       { x: 100, y: 400, w: 30, h: 30 },
@@ -833,7 +833,7 @@ describe("portals", () => {
     expect(next.player.y).toBeGreaterThan(380);
   });
 
-  // story: portals — сценарий 4: кулдаун
+  // object: portal — сценарий 4: кулдаун
   it("portal has cooldown after teleportation", () => {
     const portals = [
       { x: 100, y: 400, w: 30, h: 30 },
@@ -848,7 +848,7 @@ describe("portals", () => {
     expect(next.portalCooldown).toBeGreaterThan(0);
   });
 
-  // story: portals — сценарий 4: кулдаун предотвращает повторную телепортацию
+  // object: portal — сценарий 4: кулдаун предотвращает повторную телепортацию
   it("portal does not teleport again during cooldown", () => {
     const portals = [
       { x: 100, y: 400, w: 30, h: 30 },
@@ -865,7 +865,7 @@ describe("portals", () => {
     expect(next.player.x).toBeCloseTo(xAfterFirst + 20, 0);
   });
 
-  // story: portals — сценарий 5: враг проходит через портал
+  // object: portal — сценарий 5: враг проходит через портал
   it("patrol teleports through portal", () => {
     const portals = [
       { x: 100, y: 400, w: 30, h: 30 },
@@ -885,7 +885,7 @@ describe("portals", () => {
     expect(next.patrols[0].startX).toBeGreaterThan(500);
   });
 
-  // story: portals — сценарий 6: портал не стена
+  // object: portal — сценарий 6: портал не стена
   it("portal does not block movement", () => {
     const portals = [
       { x: 200, y: 100, w: 30, h: 30 },

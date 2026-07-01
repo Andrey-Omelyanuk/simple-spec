@@ -1,8 +1,8 @@
-// story: subscribe
+// object: subscribe-form
 import { render, screen, fireEvent } from '@testing-library/react'
 import { Subscribe } from './Subscribe'
 
-describe('Subscribe (story: subscribe)', () => {
+describe("Subscribe (object: subscribe-form)", () => {
   // Сценарий 3: пустое поле → кнопка неактивна
   it('disables the button when the field is empty', () => {
     render(<Subscribe />)

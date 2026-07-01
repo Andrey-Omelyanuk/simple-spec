@@ -1,4 +1,4 @@
-// story: subscribe
+// object: subscribe-form
 import { useState } from 'react'
 
 const isValidEmail = (value: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)

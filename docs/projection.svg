@@ -8,14 +8,14 @@
     .arrow   { fill: #888; font-size: 16px; font-weight: 600; text-anchor: middle; }
   </style>
 
-  <!-- ===== STORY: пересекающиеся окружности ===== -->
-  <text x="200" y="40" class="title">Story</text>
+  <!-- ===== OBJECT: пересекающиеся окружности ===== -->
+  <text x="200" y="40" class="title">Object</text>
   <circle class="story" cx="170" cy="150" r="62" />
   <circle class="story" cx="240" cy="155" r="58" />
   <circle class="story" cx="200" cy="220" r="60" />
   <circle class="story" cx="135" cy="225" r="50" />
   <circle class="story" cx="265" cy="220" r="48" />
-  <text x="200" y="320" class="lbl">каждая окружность — история</text>
+  <text x="200" y="320" class="lbl">каждая окружность — объект</text>
   <text x="200" y="340" class="lbl">(маленький смысл)</text>
 
   <!-- ===== ПРОЕКЦИЯ: стрелка ===== -->
@@ -30,7 +30,7 @@
   <!-- ===== CODE: большая окружность = полное покрытие ===== -->
   <text x="660" y="40" class="title">Code</text>
   <circle class="code" cx="660" cy="190" r="130" />
-  <!-- те же истории, спроецированные внутрь кода -->
+  <!-- те же объекты, спроецированные внутрь кода -->
   <circle class="codedot" cx="630" cy="150" r="48" />
   <circle class="codedot" cx="700" cy="160" r="44" />
   <circle class="codedot" cx="650" cy="220" r="46" />

@@ -1,4 +1,4 @@
-// story: score-coins
+// object: score
 import { hud } from "./hud.js";
 import { World } from "../sim/world.js";
 
@@ -21,7 +21,7 @@ function makeWorld(overrides: Partial<World> = {}): World {
 }
 
 describe("score-coins (HUD)", () => {
-  // story: score-coins — сценарий 6: счёт на экране
+  // object: score — сценарий 6: счёт на экране
   it("score is shown as a number in the top-right corner", () => {
     const world = makeWorld({ score: 5 });
     const item = hud(world).find((i) => i.corner === "top-right");
