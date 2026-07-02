@@ -34,8 +34,13 @@ function makeWorld(overrides: Partial<World> = {}): World {
     swordTimer: 0,
     swordCooldown: 0,
     swordDirection: { dx: 1, dy: 0 },
+    swordUpgraded: false,
     level: 1,
     door: { x: 700, y: 500, w: 40, h: 40, visible: false },
+    shop: {
+      x: 600, y: 50, w: 100, h: 60,
+      items: [{ x: 640, y: 70, w: 20, h: 20, type: "sword" as const, price: 3 }],
+    },
     ...overrides,
   };
 }
@@ -899,5 +904,75 @@ describe("portals", () => {
     const input: Input = { dx: 1, dy: 0 };
     const next = update(world, input, 0.1);
     expect(next.player.x).toBeGreaterThan(180);
+  });
+});
+
+// object: shop
+describe("shop", () => {
+  // object: shop — сценарий 1: магазин на карте
+  it("shop is present on the map with items", () => {
+    const world = makeWorld();
+    expect(world.shop.items.length).toBe(1);
+    expect(world.shop.items[0].type).toBe("sword");
+    expect(world.shop.items[0].price).toBe(3);
+  });
+
+  // object: shop — сценарий 2: покупка
+  it("player buys item when touching it with enough coins", () => {
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 635, y: 65 },
+      score: 5,
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 0.1);
+    expect(next.score).toBe(2);
+    expect(next.shop.items.length).toBe(0);
+    expect(next.swordUpgraded).toBe(true);
+  });
+
+  // object: shop — сценарий 3: не хватает монет
+  it("item stays when player does not have enough coins", () => {
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 635, y: 65 },
+      score: 2,
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    const next = update(world, input, 0.1);
+    expect(next.score).toBe(2);
+    expect(next.shop.items.length).toBe(1);
+    expect(next.swordUpgraded).toBe(false);
+  });
+
+  // object: shop — сценарий 4: предмет исчезает навсегда
+  it("purchased item does not reappear", () => {
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 635, y: 65 },
+      score: 5,
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    let next = update(world, input, 0.1);
+    expect(next.shop.items.length).toBe(0);
+
+    const inputBack: Input = { dx: -1, dy: 0 };
+    next = update(next, inputBack, 1);
+    expect(next.shop.items.length).toBe(0);
+  });
+
+  // object: sword — сценарий 5: усиление навсегда
+  it("sword range is doubled after purchase", () => {
+    const world = makeWorld({
+      player: { ...makeWorld().player, x: 635, y: 65 },
+      score: 5,
+      swordUpgraded: false,
+    });
+    const input: Input = { dx: 1, dy: 0 };
+    let next = update(world, input, 0.1);
+    expect(next.swordUpgraded).toBe(true);
+
+    const cactus = { x: 170, y: 100, w: 20, h: 20 };
+    next = { ...next, player: { ...next.player, x: 100, y: 100 }, cacti: [cactus] };
+    const attackInput: Input = { dx: 0, dy: 0, attack: true };
+    next = update(next, attackInput, 0.01);
+    expect(next.cacti.length).toBe(0);
   });
 });

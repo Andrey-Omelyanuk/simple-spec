@@ -41,6 +41,15 @@ export interface Door extends Rect {
   visible: boolean;
 }
 
+export interface ShopItem extends Rect {
+  type: "sword";
+  price: number;
+}
+
+export interface Shop extends Rect {
+  items: ShopItem[];
+}
+
 export interface LevelData {
   walls: Rect[];
   cacti: Cactus[];
@@ -50,6 +59,7 @@ export interface LevelData {
   rivers: River[];
   bridges: Bridge[];
   portals: Portal[];
+  shop: Shop;
   spawnX: number;
   spawnY: number;
 }
@@ -73,8 +83,10 @@ export interface World {
   swordTimer: number;
   swordCooldown: number;
   swordDirection: { dx: number; dy: number };
+  swordUpgraded: boolean;
   level: number;
   door: Door;
+  shop: Shop;
 }
 
 export interface Input {
@@ -117,8 +129,10 @@ export function createWorld(): World {
     swordTimer: 0,
     swordCooldown: 0,
     swordDirection: { dx: 1, dy: 0 },
+    swordUpgraded: false,
     level: 1,
     door: { x: 700, y: 500, w: 40, h: 40, visible: false },
+    shop: levelData.shop,
   };
 }
 
@@ -135,6 +149,10 @@ export const LEVELS: LevelData[] = [
     rivers: [],
     bridges: [],
     portals: [],
+    shop: {
+      x: 600, y: 50, w: 100, h: 60,
+      items: [{ x: 640, y: 70, w: 20, h: 20, type: "sword", price: 3 }],
+    },
     spawnX: 100,
     spawnY: 100,
   },
@@ -153,6 +171,10 @@ export const LEVELS: LevelData[] = [
       { x: 100, y: 400, w: 30, h: 30 },
       { x: 600, y: 100, w: 30, h: 30 },
     ],
+    shop: {
+      x: 600, y: 50, w: 100, h: 60,
+      items: [{ x: 640, y: 70, w: 20, h: 20, type: "sword", price: 3 }],
+    },
     spawnX: 100,
     spawnY: 100,
   },
@@ -175,6 +197,10 @@ export const LEVELS: LevelData[] = [
     rivers: [{ x: 0, y: 500, w: 800, h: 40 }],
     bridges: [{ x: 350, y: 480, w: 100, h: 80 }],
     portals: [],
+    shop: {
+      x: 600, y: 50, w: 100, h: 60,
+      items: [{ x: 640, y: 70, w: 20, h: 20, type: "sword", price: 3 }],
+    },
     spawnX: 100,
     spawnY: 100,
   },

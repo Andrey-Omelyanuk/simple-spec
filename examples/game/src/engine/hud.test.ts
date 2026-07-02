@@ -14,8 +14,13 @@ function makeWorld(overrides: Partial<World> = {}): World {
     riverFlowOffset: 0,
     score: 0, rngState: 12345, mapWidth: 800, mapHeight: 600,
     swordTimer: 0, swordCooldown: 0, swordDirection: { dx: 1, dy: 0 },
+    swordUpgraded: false,
     level: 1,
     door: { x: 700, y: 500, w: 40, h: 40, visible: false },
+    shop: {
+      x: 600, y: 50, w: 100, h: 60,
+      items: [{ x: 640, y: 70, w: 20, h: 20, type: "sword" as const, price: 3 }],
+    },
     ...overrides,
   };
 }

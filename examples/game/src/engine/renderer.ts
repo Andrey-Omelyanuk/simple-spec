@@ -12,6 +12,7 @@ export class Renderer {
     ctx.fillRect(0, 0, mapWidth, mapHeight);
 
     this.drawWalls(walls);
+    this.drawShop(world.shop);
     this.drawRivers(world.rivers, world.riverFlowOffset);
     this.drawBridges(world.bridges);
     this.drawPortals(world.portals, totalTime);
@@ -260,7 +261,7 @@ export class Renderer {
 
     const { ctx } = this;
     const { player, swordDirection } = world;
-    const swordLength = 30;
+    const swordLength = world.swordUpgraded ? 60 : 30;
     const { dx, dy } = swordDirection;
 
     ctx.fillStyle = "#ccc";
@@ -275,6 +276,34 @@ export class Renderer {
       ctx.fillRect(player.x + 2, player.y + player.h, player.w - 4, swordLength);
     } else if (dy < 0) {
       ctx.fillRect(player.x + 2, player.y - swordLength, player.w - 4, swordLength);
+    }
+  }
+
+  private drawShop(shop: { x: number; y: number; w: number; h: number; items: { x: number; y: number; w: number; h: number; type: string; price: number }[] }): void {
+    const { ctx } = this;
+
+    ctx.fillStyle = "#654";
+    ctx.fillRect(shop.x, shop.y, shop.w, shop.h);
+
+    ctx.strokeStyle = "#876";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(shop.x, shop.y, shop.w, shop.h);
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "10px monospace";
+    ctx.fillText("SHOP", shop.x + 10, shop.y + 14);
+
+    for (const item of shop.items) {
+      if (item.type === "sword") {
+        ctx.fillStyle = "#ccc";
+        ctx.fillRect(item.x + 8, item.y, 4, item.h);
+        ctx.fillStyle = "#864";
+        ctx.fillRect(item.x + 4, item.y + item.h - 6, 12, 4);
+      }
+
+      ctx.fillStyle = "#fc0";
+      ctx.font = "10px monospace";
+      ctx.fillText(`${item.price}`, item.x, item.y - 4);
     }
   }
 

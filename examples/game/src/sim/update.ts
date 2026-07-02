@@ -1,4 +1,4 @@
-import { World, Input, Player, Cactus, Patrol, Rect, Heart, Coin, River, Bridge, Portal, LEVELS } from "./world.js";
+import { World, Input, Player, Cactus, Patrol, Rect, Heart, Coin, River, Bridge, Portal, Shop, LEVELS } from "./world.js";
 import { clampToMap, resolveX, resolveY } from "./collision.js";
 
 function nextRng(state: number): { value: number; state: number } {
@@ -143,8 +143,8 @@ function getPatrolPosition(patrol: Patrol): { x: number; y: number } {
   };
 }
 
-function getSwordHitbox(player: Player, direction: { dx: number; dy: number }): Rect[] {
-  const swordLength = 30;
+function getSwordHitbox(player: Player, direction: { dx: number; dy: number }, swordUpgraded: boolean): Rect[] {
+  const swordLength = swordUpgraded ? 60 : 30;
   const rects: Rect[] = [];
   const { dx, dy } = direction;
 
@@ -237,7 +237,7 @@ export function update(world: World, input: Input, dt: number): World {
   let remainingPatrols = [...updatedPatrols];
 
   if (swordTimer > 0) {
-    const hitboxes = getSwordHitbox(player, swordDirection);
+    const hitboxes = getSwordHitbox(player, swordDirection, world.swordUpgraded);
 
     remainingCacti = remainingCacti.filter((cactus) => {
       return !hitboxes.some((hb) => rectIntersects(hb.x, hb.y, hb.w, hb.h, cactus.x, cactus.y, cactus.w, cactus.h));
@@ -398,6 +398,30 @@ export function update(world: World, input: Input, dt: number): World {
     }
   }
 
+  let swordUpgraded = world.swordUpgraded;
+  let shopItems = [...world.shop.items];
+  for (let i = shopItems.length - 1; i >= 0; i--) {
+    const item = shopItems[i];
+    const steps = 10;
+    let touched = false;
+    for (let s = 0; s <= steps; s++) {
+      const t = s / steps;
+      const checkX = player.x + (finalX - player.x) * t;
+      const checkY = player.y + (finalY - player.y) * t;
+      if (rectIntersects(checkX, checkY, player.w, player.h, item.x, item.y, item.w, item.h)) {
+        touched = true;
+        break;
+      }
+    }
+    if (touched && finalScore >= item.price) {
+      finalScore -= item.price;
+      if (item.type === "sword") {
+        swordUpgraded = true;
+      }
+      shopItems.splice(i, 1);
+    }
+  }
+
   if (hp <= 0) {
     finalX = player.spawnX;
     finalY = player.spawnY;
@@ -425,6 +449,7 @@ export function update(world: World, input: Input, dt: number): World {
   let newSpawnX = player.spawnX;
   let newSpawnY = player.spawnY;
   let newDoorVisible = doorVisible;
+  let newShopItems = shopItems;
 
   if (doorVisible) {
     let doorCollision = false;
@@ -455,6 +480,7 @@ export function update(world: World, input: Input, dt: number): World {
       newRivers = levelData.rivers;
       newBridges = levelData.bridges;
       newPortals = levelData.portals;
+      newShopItems = levelData.shop.items;
       newSpawnX = levelData.spawnX;
       newSpawnY = levelData.spawnY;
       finalX = newSpawnX;
@@ -483,7 +509,9 @@ export function update(world: World, input: Input, dt: number): World {
     swordTimer,
     swordCooldown,
     swordDirection,
+    swordUpgraded,
     level: finalLevel,
     door: { ...world.door, visible: newDoorVisible },
+    shop: { ...world.shop, items: newShopItems },
   };
 }
