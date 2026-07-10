@@ -1,1 +1,0 @@
-../../src/commands/object.md
