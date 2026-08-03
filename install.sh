@@ -65,9 +65,7 @@ mkdir -p "$kit" "$cmd_dest"
 rewrite() {
   sed -e "s#src/PLAN.md#$ref/PLAN.md#g" \
       -e "s#src/AGENTS.md#$ref/AGENTS.md#g" \
-      -e "s#scripts/check-plan-names.sh#$ref/check-plan-names.sh#g" \
-      -e "s#docs/projection.svg#projection.svg#g" \
-      -e "s#\\bREADME\\b#$ref/README.md#g"
+      -e "s#scripts/check-plan-names.sh#$ref/check-plan-names.sh#g"
 }
 
 # Подложка.
@@ -76,7 +74,6 @@ rewrite < "$SRC/src/AGENTS.md" > "$kit/AGENTS.md"
 rewrite < "$SRC/README.md"     > "$kit/README.md"
 rewrite < "$SRC/scripts/check-plan-names.sh" > "$kit/check-plan-names.sh"
 chmod +x "$kit/check-plan-names.sh"
-cp "$SRC/docs/projection.svg" "$kit/projection.svg"
 
 # Команды.
 for f in "$SRC"/src/commands/*.md; do
@@ -101,14 +98,14 @@ fi
 if [ "$mode" = "project" ]; then
   mkdir -p "$target/plan"
   echo "✓ Установлено в проект: $kit/"
-  echo "  команды:  $cmd_sub/{plan,architect}.md"
+  echo "  команды:  $cmd_sub/{plan,start,finish,architect}.md"
   echo "  подложка: PLAN.md, AGENTS.md, README.md, check-plan-names.sh"
   echo "  данные:   $target/plan/"
 else
   echo "✓ Установлено глобально ($tool):"
-  echo "  команды:  $cmd_dest/{plan,architect}.md"
+  echo "  команды:  $cmd_dest/{plan,start,finish,architect}.md"
   echo "  подложка: $kit/"
   echo "  plan/ — пер-проектный, создаётся командами в текущем проекте."
 fi
 echo
-echo "Команды /plan /architect появятся после перезапуска инструмента."
+echo "Команды /plan /start /finish /architect появятся после перезапуска инструмента."
