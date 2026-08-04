@@ -5,13 +5,14 @@
 #   ./install.sh --global [opencode|claude|cursor]     # глобально для юзера
 #
 # В проект: служебная папка по умолчанию .opencode, кит лежит плоско в ней,
-# ссылки в командах — project-relative. plan/ создаётся, если его нет.
+# ссылки в командах — project-relative.
 #
 # Глобально: команды кладутся в папку инструмента (opencode →
 # ~/.config/opencode/command, claude → ~/.claude/commands, cursor →
 # ~/.cursor/commands), кит — в simple-spec/ рядом, ссылки в командах
 # переписываются на абсолютный путь к ней.
-# plan/ НЕ создаётся — он пер-проектный, его заводят сами команды.
+#
+# PLAN.md целевого проекта установщик не трогает: его заводит /plan в корне.
 #
 # Целевой проект может уже существовать; повторный запуск обновляет кит и не
 # затирает пользовательский контент.
@@ -63,12 +64,12 @@ mkdir -p "$kit" "$cmd_dest"
 
 # Переписывает ссылки на кит с путей репозитория на целевые.
 rewrite() {
-  sed -e "s#src/PLAN.md#$ref/PLAN.md#g" \
+  sed -e "s#src/PLAN-FORMAT.md#$ref/PLAN-FORMAT.md#g" \
       -e "s#src/AGENTS.md#$ref/AGENTS.md#g"
 }
 
 # Кит.
-rewrite < "$SRC/src/PLAN.md" > "$kit/PLAN.md"
+rewrite < "$SRC/src/PLAN-FORMAT.md" > "$kit/PLAN-FORMAT.md"
 rewrite < "$SRC/src/AGENTS.md" > "$kit/AGENTS.md"
 rewrite < "$SRC/README.md"     > "$kit/README.md"
 
@@ -82,20 +83,19 @@ rm -f "$cmd_dest/wip.md" \
       "$cmd_dest/wip-check.md" \
       "$cmd_dest/plan-check.md" \
       "$kit/WIP.md" \
+      "$kit/PLAN.md" \
       "$kit/check-wip-names.sh" \
       "$kit/check-plan-names.sh"
 
 if [ "$mode" = "project" ]; then
-  mkdir -p "$target/plan"
   echo "✓ Установлено в проект: $kit/"
   echo "  команды:  $cmd_sub/{plan,start,finish,architect}.md"
-  echo "  кит:      PLAN.md, AGENTS.md, README.md"
-  echo "  данные:   $target/plan/"
+  echo "  кит:      PLAN-FORMAT.md, AGENTS.md, README.md"
 else
   echo "✓ Установлено глобально ($tool):"
   echo "  команды:  $cmd_dest/{plan,start,finish,architect}.md"
   echo "  кит:      $kit/"
-  echo "  plan/ — пер-проектный, создаётся командами в текущем проекте."
 fi
+echo "  план:     PLAN.md в корне проекта — заводит /plan в своей ветке."
 echo
 echo "Команды /plan /start /finish /architect появятся после перезапуска инструмента."
