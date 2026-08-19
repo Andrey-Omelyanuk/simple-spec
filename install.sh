@@ -65,13 +65,11 @@ mkdir -p "$kit" "$cmd_dest"
 # Переписывает ссылки на кит с путей репозитория на целевые.
 rewrite() {
   sed -e "s#src/PLAN-FORMAT.md#$ref/PLAN-FORMAT.md#g" \
-      -e "s#src/STORY-FORMAT.md#$ref/STORY-FORMAT.md#g" \
       -e "s#src/AGENTS.md#$ref/AGENTS.md#g"
 }
 
 # Кит.
-rewrite < "$SRC/src/PLAN-FORMAT.md"  > "$kit/PLAN-FORMAT.md"
-rewrite < "$SRC/src/STORY-FORMAT.md" > "$kit/STORY-FORMAT.md"
+rewrite < "$SRC/src/PLAN-FORMAT.md" > "$kit/PLAN-FORMAT.md"
 rewrite < "$SRC/src/AGENTS.md" > "$kit/AGENTS.md"
 rewrite < "$SRC/README.md"     > "$kit/README.md"
 
@@ -86,19 +84,20 @@ rm -f "$cmd_dest/plan-check.md" \
       "$cmd_dest/wip-check.md" \
       "$kit/WIP.md" \
       "$kit/PLAN.md" \
+      "$kit/STORY-FORMAT.md" \
       "$kit/check-plan-names.sh" \
       "$kit/check-wip-names.sh"
 
 if [ "$mode" = "project" ]; then
   echo "✓ Установлено в проект: $kit/"
   echo "  команды:  $cmd_sub/{story,plan,start,finish,architect}.md"
-  echo "  кит:      STORY-FORMAT.md, PLAN-FORMAT.md, AGENTS.md, README.md"
+  echo "  кит:      PLAN-FORMAT.md, AGENTS.md, README.md"
 else
   echo "✓ Установлено глобально ($tool):"
   echo "  команды:  $cmd_dest/{story,plan,start,finish,architect}.md"
   echo "  кит:      $kit/"
 fi
-echo "  истории:  stories/ в корне проекта — заводит /story в своей ветке."
+echo "  истории:  stories/ в корне проекта — заводит /story."
 echo "  план:     PLAN.md в корне проекта — заводит /plan в своей ветке."
 echo
 echo "Команды /story /plan /start /finish /architect появятся после перезапуска инструмента."
