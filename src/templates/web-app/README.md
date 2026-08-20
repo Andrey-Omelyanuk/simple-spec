@@ -22,7 +22,7 @@ root                      ← root.md
 
 ## Как раскрывать
 
-1. `/architect` читает `src/templates/django-monorepo/` и `src/AGENTS.md`.
+1. `/architect` читает `src/templates/web-app/` и `src/AGENTS.md`.
 2. По `root.md` — корневой `AGENTS.md`: имя проекта, границы монорепо, схема
    папок, команды (`make`), `Verification`.
 3. По `django-service.md` — `main/AGENTS.md`: стек, список `apps/*`, общие

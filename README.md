@@ -65,7 +65,7 @@ main ──●──────────────────────
 - `src/commands/architect.md` — команда построения скелета.
 - `src/AGENTS.md` — формат уровня: границы, паттерны, `Verification`.
 - `src/templates/` — готовые скелеты архитектур для `/architect`
-  (например `django-monorepo/`, образец — `pg`, `fitness`).
+  (например `web-app/`, образец — `pg`, `fitness`).
 - `src/commands/` — сами команды.
 
 ## Установка

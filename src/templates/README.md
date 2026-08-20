@@ -10,8 +10,12 @@
 
 ## Список шаблонов
 
-- `django-monorepo/` — монорепо: Django monolith (backend), SPA-клиент,
+- `web-app/` — монорепо: Django monolith (backend), SPA-клиент,
   инфраструктура. Образцы: `pg`, `fitness`.
+- `ts-lib/` — переиспользуемая TypeScript-библиотека, один уровень. Образец:
+  `mobx-model-ui`.
+- `python-lib/` — переиспользуемый Python-пакет (src-layout), один уровень.
+  Образец: `django-logic`.
 
 Чтобы добавить шаблон — создай папку с тем же дифом поправь `install.sh`
 (копируются все папки и файлы шаблонов автоматически) и упомяни в этом README.
