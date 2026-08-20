@@ -64,7 +64,8 @@ mkdir -p "$kit" "$cmd_dest"
 
 # Переписывает ссылки на кит с путей репозитория на целевые.
 rewrite() {
-  sed -e "s#src/AGENTS.md#$ref/AGENTS.md#g"
+  sed -e "s#src/AGENTS.md#$ref/AGENTS.md#g" \
+      -e "s#src/templates#$ref/templates#g"
 }
 
 # Кит.
@@ -75,6 +76,13 @@ rewrite < "$SRC/README.md"    > "$kit/README.md"
 for f in "$SRC"/src/commands/*.md; do
   rewrite < "$f" > "$cmd_dest/$(basename "$f")"
 done
+
+# Шаблоны архитектуры.
+rm -rf "$kit/templates"
+cp -R "$SRC/src/templates" "$kit/templates"
+find "$kit/templates" -type f -name '*.md' -exec sed -i \
+  -e "s#src/AGENTS.md#$ref/AGENTS.md#g" \
+  -e "s#src/templates#$ref/templates#g" {} +
 
 # Хвосты ещё более старых установок (имена команд и файлов кита, которых больше нет).
 rm -f "$cmd_dest/plan-check.md" \
@@ -92,7 +100,7 @@ rm -f "$cmd_dest/plan-check.md" \
 if [ "$mode" = "project" ]; then
   echo "✓ Установлено в проект: $kit/"
   echo "  команды:  $cmd_sub/{story,start,architect}.md"
-  echo "  кит:      AGENTS.md, README.md"
+  echo "  кит:      AGENTS.md, README.md, templates/"
 else
   echo "✓ Установлено глобально ($tool):"
   echo "  команды:  $cmd_dest/{story,start,architect}.md"
