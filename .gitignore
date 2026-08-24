@@ -4,3 +4,4 @@ dist/
 # Артефакты install.sh при прогоне по этому репозиторию
 .claude/
 .cursor/
+.opencode/

@@ -1,33 +1,32 @@
-# {Service Name} (Django Monolith)
+# {Service Name} (Django)
 
 ## Overview
 Backend-сервер: REST API для всех клиентов, доменные модели, {интеграции}.
 
 ## Boundaries
 - Делает: API, бизнес-логика, хранение, {интеграции}.
-- Не делает: UI (это web/bot), {что ещё не делает}.
+- Не делает: UI (это клиентские сервисы), {что ещё не делает}.
 
 ## Tech Stack
-Python {версия}, Django {версия}, DRF, Celery, PostgreSQL, Redis, Centrifugo, aiogram.
+Python {версия}, Django {версия}, {DRF, очередь задач, БД, кеш, остальное}.
 
 ## Architecture
-- `{project}/` — Django project settings, urls, celery, wsgi.
-- `apps/core/` — базовые модели (UUID_Model), фильтры, pub_sub, User API.
+- `{project}/` — settings, urls, wsgi, {точки входа фоновых процессов}.
+- `apps/{core}/` — общее для приложений: {базовая модель, фильтры, общий REST}.
 - `apps/{домен}/` — {домен}.
 - ... по одному на каждое приложение ниже.
 
 ## Patterns
-- Каждое приложение Django — отдельный уровень со своим AGENTS.md.
-- Модели наследуются от `core.UUID_Model`.
-- API через DRF ModelViewSet + кастомный FilterBackend из core.
-- Сериализаторы наследуются от `core.rest.serializers.CoreModelSerializer`.
-- Каждое приложение с моделями имеет `admin.py` с `ModelAdmin`.
+- Каждое приложение Django — отдельный уровень со своим `AGENTS.md`.
+- {Модели наследуются от общей базовой модели из core}.
+- {API: как строятся вьюхи и сериализаторы, от чего наследуются}.
+- {Что обязательно есть у каждого приложения с моделями: admin и т.п.}.
 
 ## Verification
-- `pytest` — тесты в каждом приложении (tests/).
-- `pylint` — линтинг (ci-lint target в makefile).
-- Команда: `make ci-build && make ci-test`
+- {Тесты: инструмент, где лежат, как называются}.
+- {Линтер и как запускается}.
+- {Команда, которой проверяется сервис целиком}.
 
 ## Dependencies
-- infra/ (PostgreSQL, Redis, {S3})
-- {внешние API, если есть}
+- {инфраструктура: БД, кеш, хранилище}.
+- {внешние API, если есть}.

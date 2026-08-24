@@ -1,7 +1,7 @@
 # Python Library
 
 Переиспользуемый Python-пакет с чётким публичным API. Один уровень — корень
-репозитория (src-layout). Образец — `django-logic`. Формат уровня — `src/AGENTS.md`.
+репозитория (src-layout). Формат уровня — `src/LEVEL.md`.
 
 ## Схема
 
@@ -19,7 +19,7 @@ root                    ← root.md  (единственный уровень)
 
 ## Как раскрывать
 
-1. `/architect` читает `src/templates/python-lib/` и `src/AGENTS.md`.
+1. `/architect` читает `src/templates/python-lib/` и `src/LEVEL.md`.
 2. По `root.md` — корневой `AGENTS.md`: что абстрагирует пакет, что является
    публичным API (это `Boundaries` — всё остальное «не делает»), стек, способ
    проверки (`pytest`, `testpaths`).
