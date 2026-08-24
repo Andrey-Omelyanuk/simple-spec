@@ -77,14 +77,14 @@ for pair in ".claude commands" ".cursor commands" ".opencode command"; do
   set -- $pair
   p="$TMP/t$1"; mkdir -p "$p"
   "$SRC/install.sh" "$p" "$1" >/dev/null
-  [ -f "$p/$1/$2/start.md" ] && ok "$1 → $2/" || bad "$1: команды не в $2/"
-  grep -q "$1/$2/start.md" "$p/$1/README.md" && ok "$1: индекс README ведёт на команды" || bad "$1: README не знает, где команды"
+  [ -f "$p/$1/$2/do.md" ] && ok "$1 → $2/" || bad "$1: команды не в $2/"
+  grep -q "$1/$2/do.md" "$p/$1/README.md" && ok "$1: индекс README ведёт на команды" || bad "$1: README не знает, где команды"
 done
 
 head_ "7. Глобальная установка, спецсимволы в пути"
 home="$TMP/ho&me#1"; mkdir -p "$home"
 if HOME="$home" "$SRC/install.sh" --global claude >/dev/null 2>&1; then ok "установка прошла"; else bad "установка провалилась на пути с & и #"; fi
-[ -f "$home/.claude/commands/start.md" ] && ok "команды на месте" || bad "команд нет"
+[ -f "$home/.claude/commands/do.md" ] && ok "команды на месте" || bad "команд нет"
 [ -f "$home/.claude/simple-spec/LEVEL.md" ] && ok "кит на месте" || bad "кита нет"
 survived="$(grep -rEn "$rewritten" "$home" || true)"
 [ -z "$survived" ] && ok "ни одной формы src/ не пережило" || bad "пережили формы src/:
