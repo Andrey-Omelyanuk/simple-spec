@@ -1,30 +1,30 @@
 # {Library Name}
 
 ## Overview
-Что это за пакет, какую задачу абстрагирует, кому нужен. 1-2 строки.
+What this package is, what task it abstracts, who needs it. 1-2 lines.
 
 ## Boundaries
-- Делает: {публичный API — декларативно, что пользователь может}.
-- Не делает: {чего нет — это границы API}.
+- Does: {the public API — declaratively, what the user can do}.
+- Does not do: {what is absent — these are the API boundaries}.
 
 ## Tech Stack
-Python {версия}, {зависимости}.
+Python {version}, {dependencies}.
 
 ## Architecture
-- `src/{package}/` — реализация, `__init__.py` — точка входа (публичный API).
-- `tests/` — pytest, `testpaths` в конфиге.
-- {demo, docs} — по надобности.
+- `src/{package}/` — implementation, `__init__.py` is the entry point (public API).
+- `tests/` — pytest, `testpaths` in the config.
+- {demo, docs} — as needed.
 
 ## Patterns
-- {паттерны: точка входа-переэкспорт, единая абстракция}.
-- Naming: {именование модулей, тестов}.
+- {patterns: entry-point re-export, single abstraction}.
+- Naming: {module and test naming}.
 
 ## Non-Obvious Rules
-- {правила, которые нельзя вывести из кода}.
+- {rules that cannot be derived from the code}.
 
 ## Verification
-- `pytest` — тесты в `tests/`, изолируются моками, проверяют публичный API.
-- {критерий готовности}.
+- `pytest` — tests in `tests/`, isolated with mocks, check the public API.
+- {definition of done}.
 
 ## Dependencies
-- {прямые зависимости}.
+- {direct dependencies}.

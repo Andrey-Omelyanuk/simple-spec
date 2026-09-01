@@ -1,26 +1,27 @@
 # Python Library
 
-Переиспользуемый Python-пакет с чётким публичным API. Один уровень — корень
-репозитория (src-layout). Формат уровня — `src/LEVEL.md`.
+A reusable Python package with a crisp public API. One level — the repository
+root (src-layout). The level format is `src/LEVEL.md`.
 
-## Схема
+## Scheme
 
 ```
-root                    ← root.md  (единственный уровень)
-├── src/{package}/      ← реализация
+root                    ← root.md  (the only level)
+├── src/{package}/      ← implementation
 ├── tests/              ← pytest
-└── {demo, docs}        ← по надобности
+└── {demo, docs}        ← as needed
 ```
 
-Библиотека — самодостаточный уровень, поэтому `AGENTS.md` в корне один. Дочерние
-модули внутри `src/{package}/` уровнями не становятся, если у них нет своей
-`Verification`-границы — они раскрыты в `Architecture`/`Patterns` корневого
-`AGENTS.md`.
+The library is a self-contained level, so there is one `AGENTS.md` at the root.
+Child modules inside `src/{package}/` don't become levels unless they have their
+own `Verification` boundary — they are covered in the `Architecture`/`Patterns` of
+the root `AGENTS.md`.
 
-## Как раскрывать
+## How to expand
 
-1. `/architect` читает `src/templates/python-lib/` и `src/LEVEL.md`.
-2. По `root.md` — корневой `AGENTS.md`: что абстрагирует пакет, что является
-   публичным API (это `Boundaries` — всё остальное «не делает»), стек, способ
-   проверки (`pytest`, `testpaths`).
-3. Доменное наполнение (`{...}`) — из разговора с пользователем, не выдумывать.
+1. `/architect` reads `src/templates/python-lib/` and `src/LEVEL.md`.
+2. Per `root.md` — the root `AGENTS.md`: what the package abstracts, what the
+   public API is (that's `Boundaries` — everything else is "does not do"), the
+   stack, the way of checking (`pytest`, `testpaths`).
+3. Domain content (`{...}`) comes from the conversation with the user — don't
+   invent it.

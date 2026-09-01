@@ -1,29 +1,31 @@
 # {Project Name}
 
 ## Overview
-Что это за платформа и для чего. 1-2 строки.
+What this platform is and what for. 1-2 lines.
 
 ## Boundaries
-- Монорепо: {состав — backend, frontend, инфраструктура}.
-- {что живёт внутри одного из сервисов, а не отдельным: например бот как процесс
-  backend'а}.
-- Не делает: {что осталось снаружи монорепо}.
+- Monorepo: {composition — backend, frontend, infrastructure}.
+- {what lives inside one of the services rather than separately: e.g. a bot as a
+  process of the backend}.
+- Does not do: {what stays outside the monorepo}.
 
 ## Architecture
-- `{backend}/` — {монолит: REST API, доменные модели, ...}.
-- `{web}/` — {SPA веб-клиент}.
-- `{infra}/` — {Docker Compose, gateway, БД, кеш, хранилище}.
-- {другие сервисы}.
+- `{backend}/` — {monolith: REST API, domain models, ...}.
+- `{web}/` — {SPA web client}.
+- `{infra}/` — {Docker Compose, gateway, DB, cache, storage}.
+- {other services}.
 
 ## Non-Obvious Rules
-- {Единственный интерфейс запуска: например `make` в корне — сборка, запуск,
-  стоп, тесты, логи, консоль}.
-- {Нужной команды нет — добавляем по аналогии с существующими, а не в обход}.
-- {Ничего не запускается напрямую в обход этого интерфейса: ни docker compose,
-  ни python/node внутри репозитория}.
-- {Как выполнить произвольную команду в сервисе}.
-- {Переменные окружения: где лежат, откуда копируются}.
+- {The single launch interface: e.g. `make` at the root — build, run,
+  stop, tests, logs, console}.
+- {A needed command is missing — add it by analogy with the existing ones, not
+  around them}.
+- {Nothing is launched directly bypassing this interface: neither docker compose,
+  nor python/node inside the repository}.
+- {How to run an arbitrary command in a service}.
+- {Environment variables: where they live, where they are copied from}.
 
 ## Verification
-{Как проверяется целое: у каждого уровня свой `Verification`, корневой уровень —
-успешный запуск всего и зелёные тесты во всех уровнях. Назови команды.}
+{How the whole is checked: each level has its own `Verification`, the root level
+is a successful launch of everything and green tests in all levels. Name the
+commands.}

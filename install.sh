@@ -1,23 +1,29 @@
 #!/usr/bin/env bash
-# Ставит команды Simple Spec и кит — в проект или глобально для пользователя.
+# Installs Simple Spec commands and the kit — into a project or globally for the
+# user.
 #
-#   ./install.sh <путь-к-проекту> [служебная-папка]   # в конкретный проект
-#   ./install.sh --global [opencode|claude|cursor]     # глобально для юзера
+#   ./install.sh <path-to-project> [service-folder] [-l language]   # into a project
+#   ./install.sh --global [opencode|claude|cursor] [-l language]    # global for the user
 #
-# В проект: служебная папка по умолчанию .opencode, кит лежит плоско в ней,
-# ссылки в командах — project-relative.
+# The language is the -l flag (default en): texts come from src/ for en and from
+# src/<language>/ for the rest. The installed language is written to the manifest
+# and kept by a re-run without the flag; -l switches the language.
 #
-# Глобально: команды кладутся в папку инструмента (opencode →
+# Into a project: the service folder defaults to .opencode, the kit lies flat in
+# it, references in the commands are project-relative.
+#
+# Global: commands go to the tool's folder (opencode →
 # ~/.config/opencode/command, claude → ~/.claude/commands, cursor →
-# ~/.cursor/commands), кит — в simple-spec/ рядом, ссылки в командах
-# переписываются на абсолютный путь к ней.
+# ~/.cursor/commands), the kit — into simple-spec/ next to it, references in the
+# commands are rewritten to its absolute path.
 #
-# stories/ целевого проекта установщик не трогает: их заводит /story в корне.
+# The target project's stories/ is not touched: /story creates it at the root.
 #
-# Повторный запуск обновляет кит и по манифесту прошлой установки
-# ($kit/.installed) убирает то, что она ставила, а эта уже нет: переименованные
-# и исчезнувшие команды уходят сами. Пользовательское не трогается — кроме
-# $kit/templates: она перезаписывается целиком, свои шаблоны там не живут.
+# A re-run updates the kit and, by the manifest of the previous install
+# ($kit/.installed), removes what it installed and this one no longer does:
+# renamed and gone commands disappear on their own. User content is not touched —
+# except $kit/templates: it is overwritten entirely, your own templates don't
+# live there.
 set -euo pipefail
 
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -26,12 +32,27 @@ die() { echo "❌ $1" >&2; exit 1; }
 
 usage() {
   cat >&2 <<'U'
-Использование:
-  ./install.sh <путь-к-проекту> [служебная-папка=.opencode]
-  ./install.sh --global [opencode|claude|cursor]
+Usage:
+  ./install.sh <path-to-project> [service-folder=.opencode] [-l language=en]
+  ./install.sh --global [opencode|claude|cursor] [-l language=en]
 U
   exit 2
 }
+
+lang_opt=""
+pos=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -l|--lang)
+      [ $# -ge 2 ] || die "Flag $1 requires a language value (en, ru, ...)"
+      lang_opt="$2"; shift 2 ;;
+    -g|--global)
+      pos+=("$1"); shift ;;
+    -*) usage ;;
+    *) pos+=("$1"); shift ;;
+  esac
+done
+set -- "${pos[@]}"
 
 if [ "${1:-}" = "--global" ] || [ "${1:-}" = "-g" ]; then
   mode="global"
@@ -40,27 +61,27 @@ if [ "${1:-}" = "--global" ] || [ "${1:-}" = "-g" ]; then
     opencode) base="$HOME/.config/opencode"; cmd_sub="command"  ;;
     claude)   base="$HOME/.claude";          cmd_sub="commands" ;;
     cursor)   base="$HOME/.cursor";          cmd_sub="commands" ;;
-    *) die "Неизвестный инструмент: $tool (ожидается opencode, claude или cursor)" ;;
+    *) die "Unknown tool: $tool (expected opencode, claude or cursor)" ;;
   esac
-  kit="$base/simple-spec"    # кит
-  cmd_dest="$base/$cmd_sub"  # команды
-  ref="$kit"                 # ссылки на кит      → абсолютный путь к киту
-  cmd_ref="$cmd_dest"        # ссылки на команды  → абсолютный путь к их папке
+  kit="$base/simple-spec"    # kit
+  cmd_dest="$base/$cmd_sub"  # commands
+  ref="$kit"                 # kit references  → absolute path to the kit
+  cmd_ref="$cmd_dest"        # command references → absolute path to their folder
 else
   mode="project"
   target="${1:-}"
   dir="${2:-.opencode}"
   [ -z "$target" ] && usage
-  [ -d "$target" ] || die "Не найден каталог проекта: $target"
+  [ -d "$target" ] || die "Project folder not found: $target"
   dir="${dir%/}"
-  # Служебная папка обязана быть относительным путём внутри проекта: иначе кит
-  # уезжает наружу, а `rm -rf $kit/templates` ниже сносит чужую папку — при
-  # `dir=.` это `templates/` самого проекта.
+  # The service folder must be a relative path inside the project: otherwise the
+  # kit leaves the project, and the `rm -rf $kit/templates` below would delete a
+  # foreign folder — with `dir=.` that is the project's own `templates/`.
   case "$dir" in
-    ""|.|..|/*) die "Служебная папка — относительный путь внутри проекта, не «${2:-}»" ;;
+    ""|.|..|/*) die "Service folder must be a relative path inside the project, not «${2:-}»" ;;
   esac
   case "/$dir/" in
-    */../*) die "Служебная папка — относительный путь внутри проекта, не «${2:-}»" ;;
+    */../*) die "Service folder must be a relative path inside the project, not «${2:-}»" ;;
   esac
   case "$(basename "$dir")" in
     .claude) cmd_sub="commands" ;;
@@ -69,49 +90,61 @@ else
   esac
   kit="$target/$dir"
   cmd_dest="$kit/$cmd_sub"
-  ref="$dir"                 # ссылки на кит      → project-relative
-  cmd_ref="$dir/$cmd_sub"    # ссылки на команды  → project-relative
+  ref="$dir"                 # kit references  → project-relative
+  cmd_ref="$dir/$cmd_sub"    # command references → project-relative
 fi
 
 mkdir -p "$kit" "$cmd_dest"
 manifest="$kit/.installed"
 
-# Экранирует то, что sed прочтёт как синтаксис: разделитель #, & и \.
+# Install language: the -l flag, else the language of the previous install
+# (manifest), else en.
+lang="${lang_opt:-}"
+if [ -z "$lang" ] && [ -f "$manifest" ]; then
+  lang="$(grep '^lang ' "$manifest" | awk '{print $2}' || true)"
+fi
+lang="${lang:-en}"
+case "$lang" in
+  en) src_root="$SRC/src" ;;
+  *)  [ -d "$SRC/src/$lang" ] || die "No translation for language: $lang"; src_root="$SRC/src/$lang" ;;
+esac
+
+# Escapes what sed would read as syntax: separator #, & and \.
 esc() { printf '%s' "$1" | sed 's/[\\&#]/\\&/g'; }
 
-# Переписывает ссылки на кит и команды с путей репозитория на целевые.
+# Rewrites kit and command references from repository paths to the target ones.
 rewrite() {
   sed -e "s#src/LEVEL.md#$(esc "$ref")/LEVEL.md#g" \
       -e "s#src/templates#$(esc "$ref")/templates#g" \
       -e "s#src/commands#$(esc "$cmd_ref")#g"
 }
 
-# Что ставит эта установка. Отсюда же — манифест и строки вывода.
+# What this install ships. From here — the manifest and the output lines.
 kit_files=(LEVEL.md README.md templates)
 cmd_files=()
-for f in "$SRC"/src/commands/*.md; do cmd_files+=("$(basename "$f")"); done
+for f in "$src_root"/commands/*.md; do cmd_files+=("$(basename "$f")"); done
 
-# Кит.
-rewrite < "$SRC/src/LEVEL.md" > "$kit/LEVEL.md"
-rewrite < "$SRC/README.md"    > "$kit/README.md"
+# Kit.
+rewrite < "$src_root/LEVEL.md" > "$kit/LEVEL.md"
+rewrite < "$src_root/README.md" > "$kit/README.md"
 
-# Команды.
-for f in "$SRC"/src/commands/*.md; do
+# Commands.
+for f in "$src_root"/commands/*.md; do
   rewrite < "$f" > "$cmd_dest/$(basename "$f")"
 done
 
-# Шаблоны архитектуры.
+# Architecture templates.
 rm -rf "$kit/templates"
-cp -R "$SRC/src/templates" "$kit/templates"
+cp -R "$src_root/templates" "$kit/templates"
 find "$kit/templates" -type f -name '*.md' | while IFS= read -r f; do
   rewrite < "$f" > "$f.new" && mv "$f.new" "$f"
 done
 
 has() { local n="$1"; shift; local x; for x in "$@"; do [ "$x" = "$n" ] && return 0; done; return 1; }
 
-# Установки до манифеста. Список закрытый: это все имена, которые install.sh
-# когда-либо ставил и больше не ставит. Дописывать сюда нечего — исчезнувшее с
-# этого момента убирает манифест.
+# Installs before the manifest. The list is closed: these are all names install.sh
+# ever installed and no longer does. Nothing to append here — anything gone from
+# now on is removed by the manifest.
 rm -f "$cmd_dest/object.md"      "$cmd_dest/object-check.md" \
       "$cmd_dest/story-check.md" "$cmd_dest/plan.md" "$cmd_dest/finish.md" \
       "$kit/AGENTS.md"           "$kit/OBJECT.md" \
@@ -119,7 +152,7 @@ rm -f "$cmd_dest/object.md"      "$cmd_dest/object-check.md" \
       "$kit/STORY-FORMAT.md"     "$kit/projection.svg" \
       "$kit/check-object-names.sh" "$kit/check-plan-names.sh"
 
-# Прошлая установка: убираем то, что она ставила, а эта — уже нет.
+# Previous install: remove what it installed and this one no longer does.
 if [ -f "$manifest" ]; then
   while read -r kind name; do
     case "$kind" in
@@ -131,7 +164,8 @@ fi
 
 version="$(git -C "$SRC" rev-parse --short HEAD 2>/dev/null || echo unknown)"
 {
-  echo "# simple-spec $version — поставленное; по этому списку следующий запуск уберёт лишнее"
+  echo "# simple-spec $version — installed; the next run removes what this no longer ships"
+  echo "lang $lang"
   printf 'kit %s\n' "${kit_files[@]}"
   printf 'cmd %s\n' "${cmd_files[@]}"
 } > "$manifest"
@@ -141,14 +175,14 @@ kit_list="$(printf '%s, ' "${kit_files[@]}")";    kit_list="${kit_list%, }"
 slashes="$(printf '/%s ' "${cmd_files[@]%.md}")"
 
 if [ "$mode" = "project" ]; then
-  echo "✓ Установлено в проект: $kit/ (simple-spec $version)"
-  echo "  команды:  $cmd_sub/$cmd_list"
-  echo "  кит:      $kit_list"
+  echo "✓ Installed into project: $kit/ (simple-spec $version)"
+  echo "  commands:  $cmd_sub/$cmd_list"
+  echo "  kit:       $kit_list"
 else
-  echo "✓ Установлено глобально ($tool, simple-spec $version):"
-  echo "  команды:  $cmd_dest/$cmd_list"
-  echo "  кит:      $kit/"
+  echo "✓ Installed globally ($tool, simple-spec $version):"
+  echo "  commands:  $cmd_dest/$cmd_list"
+  echo "  kit:       $kit/"
 fi
-echo "  истории:  stories/ в корне проекта — заводит /story."
+echo "  stories:   stories/ at the project root — created by /story."
 echo
-echo "Команды ${slashes}появятся после перезапуска инструмента."
+echo "Commands ${slashes}appear after the tool restart."

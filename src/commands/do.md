@@ -1,49 +1,50 @@
 ---
-description: Режим реализации — реализует историю кодом и тестами
-argument-hint: <имя-истории>
+description: Implementation mode — implements the story with code and tests
+argument-hint: <story-name>
 ---
 
 # /do
 
-Реализуешь историю: `$ARGUMENTS`
+You implement the story: `$ARGUMENTS`
 
-Формат истории — в `src/commands/story.md`.
+The story format is in `src/commands/story.md`.
 
-## Поток
+## Flow
 
-1. **Возьми историю.** Имя передали — файл `stories/ГГГГ-ММ-ДД-<имя>.md`; файла
-   нет — спроси, какую историю, и не угадывай: свежая запись в `stories/` не
-   обязательно та, что нужна. Имени нет — бери историю отработавшей в сессии
-   `/story`; не было и её — скажи, что `/do` без истории не работает, и
-   предложи `/story`.
-2. **Прочитай уровни** — `AGENTS.md` затронутых папок, оттуда `Verification`.
-   У уровня нет `AGENTS.md` — остановись и предложи `/architect`: без
-   `Verification` нечем проверить, история не закроется.
-3. **Возьми ветку.** Ветки ещё нет — создай от главной: имя ветки — имя истории
-   без даты (`shop` для `stories/2026-08-24-shop.md`), файл истории первым
-   коммитом. Ветка есть — переключись и продолжай с того, на чём кончил прошлый
-   вызов, — по коммитам ветки и именам тестов: `/do` зовут сколько угодно раз.
-4. **Реализуй пункты** `## Поведение`, которым ещё нет теста:
-   - имя теста повторяет формулировку пункта;
-   - решение, которое нельзя вывести из кода, — «почему»-комментарий у кода или
-     в `Non-Obvious Rules` уровня;
-   - поведение, которого в истории нет (краевой случай), — допиши пункт в
-     историю своей ветки (до мержа) и только потом тест;
-   - пункт отменяет поведение, покрытое тестом прошлой истории, —
-     переформулируй или удали тот тест отдельным коммитом; в сообщении назови,
-     что отменено и почему;
-   - понадобился новый уровень — `AGENTS.md` по шаблону `src/LEVEL.md`, в ту же
-     ветку.
-5. **Докажи**: прогони тесты уровня и покажи вывод — диф без прогона не
-   результат. Выпиши проекцию: строка на пункт, `пункт → имя теста`; пункт без
-   теста назови прямо и с причиной.
-6. **Коммить и запушить.** Коммитишь осмысленными шагами, код — только на
-   зелёном прогоне: красный тест не коммит, а недоделанная работа. Ветку
-   пушишь в `origin`; `origin` нет — остаётся локальной, это не ошибка. Команда
-   кончается веткой и проекцией.
+1. **Take the story.** A name was passed — the file `stories/YYYY-MM-DD-<name>.md`;
+   if the file doesn't exist, ask which story and don't guess: the freshest entry
+   in `stories/` is not necessarily the one needed. No name — take the story from
+   the `/story` that ran in this session; if there was none — say that `/do`
+   doesn't work without a story and offer `/story`.
+2. **Read the levels** — the `AGENTS.md` of the affected folders, from there
+   `Verification`. If a level has no `AGENTS.md` — stop and offer `/architect`:
+   without `Verification` there is nothing to check against, the story won't close.
+3. **Take a branch.** No branch yet — create one from main: the branch name is the
+   story name without the date (`shop` for `stories/2026-08-24-shop.md`), the story
+   file is the first commit. A branch exists — switch to it and continue where the
+   previous call stopped — by the branch's commits and test names: `/do` can be
+   called any number of times.
+4. **Implement the `## Behavior` items** that don't have a test yet:
+   - the test name mirrors the wording of the item;
+   - a decision that cannot be derived from the code is a "why" comment next to
+     the code or in the level's `Non-Obvious Rules`;
+   - behavior absent from the story (an edge case) — append an item to the story
+     on your branch (before the merge) and only then write the test;
+   - an item cancels behavior covered by a test of a past story — rephrase or
+     remove that test in a separate commit; in the message name what was cancelled
+     and why;
+   - a new level is needed — an `AGENTS.md` per the `src/LEVEL.md` template, on
+     the same branch.
+5. **Prove it**: run the level's tests and show the output — a diff without a run
+   is not a result. Write out the projection: one line per item,
+   `item → test name`; name an item without a test directly, with the reason.
+6. **Commit and push.** You commit in meaningful steps, code only on a green run:
+   a red test is not a commit but unfinished work. You push the branch to
+   `origin`; if there is no `origin`, it stays local — that is not an error. The
+   command ends with a branch and the projection.
 
-## Чего ты НЕ делаешь
+## What you do NOT do
 
-- Не мержишь ветку — это решение пользователя.
-- Не удаляешь и не переписываешь пункты истории — только дописываешь; спор с
-  историей возвращай в чат.
+- You don't merge the branch — that's the user's decision.
+- You don't delete or rewrite story items — only append; a dispute with the story
+  goes back to the chat.

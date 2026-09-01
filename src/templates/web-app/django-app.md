@@ -1,23 +1,23 @@
 # {App Name}
 
 ## Overview
-Что делает это приложение Django. 1-2 строки.
+What this Django app does. 1-2 lines.
 
 ## Boundaries
-- Делает: {что}.
-- Не делает: {чего нет — соседние приложения}.
+- Does: {what}.
+- Does not do: {what is absent — neighbouring apps}.
 
 ## Architecture
-- `models.py` — {модели}.
-- `rest/` — ViewSets + сериализаторы.
+- `models.py` — {models}.
+- `rest/` — ViewSets + serializers.
 - `admin.py` — ModelAdmin.
-- {остальное по надобности: action, middleware, management command}.
+- {the rest as needed: action, middleware, management command}.
 
 ## Patterns
-- {паттерны приложения}.
+- {app patterns}.
 
 ## Verification
-- `pytest` в `tests/`.
+- `pytest` in `tests/`.
 
 ## Dependencies
-- {от чего зависит: core, другие приложения, внешние сервисы}.
+- {what it depends on: core, other apps, external services}.

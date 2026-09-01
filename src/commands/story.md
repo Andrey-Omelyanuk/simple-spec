@@ -1,96 +1,100 @@
 ---
-description: Режим истории — обсудить намерение, сверить с кодом и историями, записать итог в stories/
-argument-hint: <о чём история | имя существующей>
+description: Story mode — discuss the intention, reconcile with code and stories, record the outcome in stories/
+argument-hint: <what the story is about | name of an existing one>
 ---
 
 # /story
 
-Обсуждаешь **намерение** — что нужно и зачем — и записываешь в `stories/` итог:
-голос пользователя плюс твою **дистилляцию**, как ты понял задачу. История —
-единственный вход для реализации (`/do`). Результат команды — один файл истории:
-ни кода, ни ветки, ни коммита.
+You discuss the **intention** — what is needed and why — and record in `stories/`
+the outcome: the user's voice plus your **distillation**, how you understood the
+task. A story is the only entry point for implementation (`/do`). The command's
+result is a single story file: no code, no branch, no commit.
 
-О чём история: `$ARGUMENTS`
+What the story is about: `$ARGUMENTS`
 
-Передали имя или путь файла из `stories/` — история не новая: работаешь над ней,
-уточняешь и дописываешь, нового файла не заводишь. Передали текст — новая
-история. Не передали ничего — новая история из разговора.
+If a name or file path from `stories/` was passed — the story is not new: you work
+on it, clarify and append; you don't create a new file. If text was passed — a new
+story. If nothing was passed — a new story from the conversation.
 
-## Формат
+## Format
 
-Файл `stories/ГГГГ-ММ-ДД-<имя>.md` — один на одну историю. Дата — день, когда
-историю завели (`date +%F`); у существующей истории дата не меняется. Заголовок внутри — имя словами; файл — короткое имя
-латиницей в kebab-case, оно же станет именем ветки в `/do`:
-`# Заявка на отпуск` → `stories/2026-08-24-vacation-request.md`.
-Имя даёшь последним, по устоявшемуся намерению: обсуждение сдвинуло постановку —
-переименуй файл вместе с заголовком, пока история не реализована.
+A file `stories/YYYY-MM-DD-<name>.md` — one per story. The date is the day the
+story was opened (`date +%F`); an existing story keeps its date. The heading
+inside is the name in words; the file name is a short latin kebab-case name, which
+will become the branch name in `/do`:
+`# Vacation request` → `stories/2026-08-24-vacation-request.md`.
+You give the name last, when the intention has settled: if the discussion shifted
+the phrasing — rename the file together with the heading while the story is not
+implemented.
 
-Внутри ровно три вещи: имя, голос, поведение. Других разделов нет — что
-сознательно не делаем, договаривай последней фразой голоса.
+Inside there are exactly three things: name, voice, behavior. No other sections —
+what we consciously do not do, you agree on with the closing phrase of the voice.
 
 ```
-# {Имя}
+# {Name}
 
-{Что нужно и зачем — словами пользователя, но теми, к которым пришёл разговор.
-Один-два абзаца.}
+{What is needed and why — in the user's words, the ones the conversation settled
+on. One or two paragraphs.}
 
-## Поведение
-- {что наблюдает пользователь, когда происходит то-то}
+## Behavior
+- {what the user observes when such-and-such happens}
 - ...
 ```
 
-`## Поведение` обязателен: каждый его пункт становится именем теста. Отсюда
-требования к пункту:
+`## Behavior` is mandatory: each of its items becomes a test name. Hence the
+requirements for an item:
 
-- **один пункт — один проверяемый результат**: «и» между двумя разными
-  результатами — это два пункта;
-- **наблюдаемый результат, а не задача**: не «добавить кнопку отмены», а
-  «отменённая заявка больше не видна в списке»;
-- **условие и результат** — когда происходит то-то, что видит пользователь.
-  Пункт, к которому нельзя придумать проверку, — не пункт, а пожелание.
+- **one item — one checkable result**: "and" between two different results means
+  two items;
+- **an observable result, not a task**: not "add a cancel button", but "a
+  cancelled request is no longer visible in the list";
+- **condition and result** — when such-and-such happens, what the user sees. An
+  item you cannot invent a check for is not an item but a wish.
 
-Пример:
+Example:
 
 ```
-# Заявка на отпуск
+# Vacation request
 
-Сотрудник просит отпуск, руководитель отвечает. Сейчас это письма: никто не
-помнит, сколько дней осталось, и заявки теряются. Календарь отдела сюда не
-тянем — заявка про чужие даты ничего не знает.
+An employee asks for leave, a manager answers. Today it's emails: nobody remembers
+how many days are left, and requests get lost. We don't pull in a team calendar —
+a request knows nothing about other people's dates.
 
-## Поведение
-- отправленную заявку автор больше не может изменить
-- руководитель видит в своём списке только отправленные заявки
-- подтверждённая заявка списывает дни из остатка сотрудника
-- отклонённая заявка дни не списывает, и руководитель называет причину
-- автор отзывает заявку, пока ответа нет; после ответа отозвать нельзя
+## Behavior
+- the author can no longer change a request once it is submitted
+- the manager sees only submitted requests in their list
+- an approved request deducts days from the employee's balance
+- a rejected request deducts no days, and the manager states the reason
+- the author withdraws the request while there is no answer; after an answer it
+  cannot be withdrawn
 ```
 
-Это файл намерения. Устаревшая история — не баг: `stories/` — лог,
-реализованное не переписывают, новое намерение — новой историей.
+This is an intention file. An outdated story is not a bug: `stories/` is a log,
+what is implemented is not rewritten, a new intention is a new story.
 
-## Поток
+## Flow
 
-1. **Разбери, что нужно и зачем** — словами пользователя; кода и код-жаргона
-   здесь нет.
-2. **Сверь полноценно** — со всеми историями и с существующим кодом. Истории
-   в `stories/` читаешь целиком, все: по именам файлов повтор и конфликт не
-   видны, а всплывут они уже в реализации. По коду карту дают `AGENTS.md`
-   затронутых уровней и имена тестов — это спека сделанного; код истории
-   читаешь, не пролистываешь.
-3. **Покажи, что нового.** Разложи услышанное на три кучки и назови их
-   пользователю: что **уже есть** — работает и покрыто тестом; что **новое** —
-   этого нет; что **меняется** — есть, но работает иначе, и история отменяет
-   прежнее поведение. Так пользователь видит, о чём история на самом деле.
-   Нашёл повтор или конфликт с прошлой историей — покажи и спроси, что делать.
-4. **Спроси**, пока не всё ясно. Неясное место называй прямо и предлагай
-   вариант, а не задавай открытый вопрос в пустоту.
-5. **Дистиллируй** итог обсуждения в пункты поведения и **покажи историю** по
-   формату. В пункты — только новое и меняющееся из шага 3: «уже есть» тестом
-   покрыто; работает без теста — всё равно пункт (спека сделанного — имена
-   тестов, шаг 2).
-6. Пользователь подтвердил — запиши файл. На этом команда заканчивается.
+1. **Figure out what is needed and why** — in the user's words; no code and no
+   code jargon here.
+2. **Reconcile thoroughly** — with all stories and with the existing code. You
+   read the stories in `stories/` in full, all of them: file names alone don't
+   reveal duplication and conflicts — they will surface during implementation.
+   For the code, the map is the `AGENTS.md` of the affected levels and the test
+   names — that is the spec of what is done; read the story's code, don't skim.
+3. **Show what's new.** Split what you heard into three piles and name them for
+   the user: what **already exists** — works and is covered by a test; what is
+   **new** — it doesn't exist; what **changes** — it exists but works differently,
+   and the story cancels the previous behavior. This way the user sees what the
+   story is really about. If you found a duplicate of or a conflict with a past
+   story — show it and ask what to do.
+4. **Ask** until everything is clear. Name the unclear place directly and propose
+   a variant rather than throwing an open question into the void.
+5. **Distill** the outcome of the discussion into behavior items and **show the
+   story** per the format. Into the items go only the new and the changing from
+   step 3: "already exists" is covered by a test; works without a test — still an
+   item (the spec of what is done is the test names, step 2).
+6. Once the user confirms — write the file. The command ends here.
 
-## Чего ты НЕ делаешь
+## What you do NOT do
 
-- Не пишешь код и тесты — это `/do`.
+- You don't write code and tests — that's `/do`.

@@ -1,32 +1,32 @@
 # {Service Name} (Django)
 
 ## Overview
-Backend-сервер: REST API для всех клиентов, доменные модели, {интеграции}.
+A backend server: a REST API for all clients, domain models, {integrations}.
 
 ## Boundaries
-- Делает: API, бизнес-логика, хранение, {интеграции}.
-- Не делает: UI (это клиентские сервисы), {что ещё не делает}.
+- Does: API, business logic, storage, {integrations}.
+- Does not do: UI (that's the client services), {what else it doesn't do}.
 
 ## Tech Stack
-Python {версия}, Django {версия}, {DRF, очередь задач, БД, кеш, остальное}.
+Python {version}, Django {version}, {DRF, task queue, DB, cache, the rest}.
 
 ## Architecture
-- `{project}/` — settings, urls, wsgi, {точки входа фоновых процессов}.
-- `apps/{core}/` — общее для приложений: {базовая модель, фильтры, общий REST}.
-- `apps/{домен}/` — {домен}.
-- ... по одному на каждое приложение ниже.
+- `{project}/` — settings, urls, wsgi, {entry points of background processes}.
+- `apps/{core}/` — shared for the apps: {base model, filters, shared REST}.
+- `apps/{domain}/` — {the domain}.
+- ... one for each app below.
 
 ## Patterns
-- Каждое приложение Django — отдельный уровень со своим `AGENTS.md`.
-- {Модели наследуются от общей базовой модели из core}.
-- {API: как строятся вьюхи и сериализаторы, от чего наследуются}.
-- {Что обязательно есть у каждого приложения с моделями: admin и т.п.}.
+- Each Django app is a separate level with its own `AGENTS.md`.
+- {Models inherit from the shared base model in core}.
+- {API: how views and serializers are built, what they inherit from}.
+- {What every app with models must have: admin etc.}.
 
 ## Verification
-- {Тесты: инструмент, где лежат, как называются}.
-- {Линтер и как запускается}.
-- {Команда, которой проверяется сервис целиком}.
+- {Tests: the tool, where they live, how they are named}.
+- {The linter and how it is run}.
+- {The command that checks the whole service}.
 
 ## Dependencies
-- {инфраструктура: БД, кеш, хранилище}.
-- {внешние API, если есть}.
+- {infrastructure: DB, cache, storage}.
+- {external APIs, if any}.

@@ -1,19 +1,20 @@
 # Architecture Templates
 
-Готовые скелеты архитектуры для `/architect`. Каждый шаблон — папка в
-`src/templates/<имя>/` с набором `AGENTS.md`-скелетов по уровням. `/architect`
-читает папку шаблона, раскрывает уровни под домен и создаёт файлы после согласия.
+Ready-made architecture skeletons for `/architect`. Each template is a folder in
+`src/templates/<name>/` with a set of `AGENTS.md` skeletons per level. `/architect`
+reads the template folder, expands the levels for the domain and creates files
+after consent.
 
-Формат уровня — один на всех, в `src/LEVEL.md`; шаблон задаёт только типовые
-уровни конкретной архитектуры и то, чем они обычно наполнены. Уровней «наперёд»
-в шаблоне нет: каждый либо обязателен для этой архитектуры, либо помечен «по
-надобности».
+The level format is one for all, in `src/LEVEL.md`; a template only defines the
+typical levels of a particular architecture and what they are usually filled
+with. There are no "ahead-of-time" levels in a template: each is either mandatory
+for this architecture or marked "as needed".
 
-## Список шаблонов
+## Template list
 
-- `web-app/` — монорепо: backend-монолит на Django, SPA-клиент, инфраструктура.
-- `ts-lib/` — переиспользуемая TypeScript-библиотека, один уровень.
-- `python-lib/` — переиспользуемый Python-пакет (src-layout), один уровень.
+- `web-app/` — a monorepo: a Django backend monolith, an SPA client, infrastructure.
+- `ts-lib/` — a reusable TypeScript library, one level.
+- `python-lib/` — a reusable Python package (src-layout), one level.
 
-Чтобы добавить шаблон — создай папку и упомяни её в списке выше. Правки
-`install.sh` не нужны: он копирует `src/templates` целиком.
+To add a template — create a folder and mention it in the list above. No edits to
+`install.sh` are needed: it copies `src/templates` as a whole.

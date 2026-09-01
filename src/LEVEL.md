@@ -1,46 +1,48 @@
-# Формат уровня
+# Level format
 
-Файл `AGENTS.md` описывает **уровень** иерархии (модуль, сервис, библиотека).
-Это карта, а не пересказ кода. Здесь — формат такого файла; сам файл в проекте
-всегда называется `AGENTS.md`: это имя инструменты читают сами.
+The `AGENTS.md` file describes a **level** of the hierarchy (module, service,
+library). It is a map, not a retelling of the code. This is the format of such a
+file; in the project the file itself is always named `AGENTS.md` — that is the
+name tools read on their own.
 
-Главное правило: пиши только то, что **нельзя прочитать из кода за 30 секунд**.
-Назначение и границы уровня — нельзя, поэтому они тут. Сигнатуры функций и
-структуры данных — можно, поэтому их тут не дублируем.
+The main rule: write only what **cannot be read from the code in 30 seconds**.
+Purpose and boundaries of the level cannot, so they are here. Function signatures
+and data structures can, so we don't duplicate them here.
 
-Обязательны три раздела: `Overview`, `Boundaries`, `Verification`. Остальные
-берёшь по надобности, пустых не оставляй. Понадобился раздел не из шаблона — значит, факт не нашёл владельца:
-почти всегда это `Non-Obvious Rules` или `Patterns`.
+Three sections are mandatory: `Overview`, `Boundaries`, `Verification`. The rest
+you take as needed; don't leave any empty. If you need a section that is not in
+the template — the fact has no owner: it is almost always `Non-Obvious Rules` or
+`Patterns`.
 
-## Шаблон
+## Template
 
 ```
 # {Module Name}
 
 ## Overview
-Зачем этот уровень существует. 1-2 строки.
+Why this level exists. 1-2 lines.
 
 ## Boundaries
-Что этот уровень делает и чего он **не** делает.
+What this level does and what it does **not** do.
 
 ## Tech Stack
-Используемые технологии.
+Technologies used.
 
 ## Architecture
-Структура директорий.
+Directory structure.
 
 ## Patterns
-Паттерны кода (error handling, naming, etc.). Комментарии — только «почему»
-(решение, отвергнутая альтернатива), никогда «что».
+Code patterns (error handling, naming, etc.). Comments — only "why"
+(decisions, rejected alternatives), never "what".
 
 ## Non-Obvious Rules
-Правила, которые нельзя вывести из кода.
+Rules that cannot be derived from the code.
 
 ## Verification
-Как проверяется, что история реализована на этом уровне: какими видами тестов и
-по каким правилам они формируются (инструменты, расположение файлов, как
-называются тесты, критерий готовности). Описываем правила, а не перечень тестов.
+How to verify that the story is implemented at this level: with which test kinds
+and by which rules they are formed (tools, file locations, how tests are named,
+definition of done). Describe rules, not a list of tests.
 
 ## Dependencies
-От чего зависит этот уровень (только прямые зависимости).
+What this level depends on (direct dependencies only).
 ```

@@ -1,33 +1,33 @@
 # {Library Name}
 
 ## Overview
-Что это за библиотека, какую задачу абстрагирует, кому нужна. 1-2 строки.
+What this library is, what task it abstracts, who needs it. 1-2 lines.
 
 ## Boundaries
-- Делает: {публичный API — декларативно, что пользователь может}.
-- Не делает: {чего нет — это границы API}.
+- Does: {the public API — declaratively, what the user can do}.
+- Does not do: {what is absent — these are the API boundaries}.
 
 ## Tech Stack
-TypeScript {target}, {зависимости}, Jest/ts-jest, {сборщик: rollup/vite}.
+TypeScript {target}, {dependencies}, Jest/ts-jest, {bundler: rollup/vite}.
 
 ## Architecture
-- `src/index.ts` — точка входа, переэкспорт всех модулей.
-- `src/` — исходники, по модулю на папку.
-- `dist/` — собранный пакет (UMD + ESM + d.ts).
-- `e2e/` — e2e-тесты публичного API.
+- `src/index.ts` — the entry point, re-exports all modules.
+- `src/` — sources, one module per folder.
+- `dist/` — the built package (UMD + ESM + d.ts).
+- `e2e/` — e2e tests of the public API.
 
 ## Patterns
-- {паттерны: модуль-точка входа, единый клиент/абстракция}.
-- Naming: {именование файлов, классов, тестов}.
+- {patterns: entry-point module, single client/abstraction}.
+- Naming: {file, class and test naming}.
 
 ## Non-Obvious Rules
-- {правила, которые нельзя вывести из кода}.
+- {rules that cannot be derived from the code}.
 
 ## Verification
-- Unit: `*.spec.ts` рядом с модулем, jest; модуль изолируется моками.
-- E2E: `e2e/` импортирует собранный пакет из `dist/` — проверяет публичный API.
-- Lint + сборка без ошибок (tsc --noEmit).
-- Критерий готовности: {build и все тесты зелёные}.
+- Unit: `*.spec.ts` next to the module, jest; the module is isolated with mocks.
+- E2E: `e2e/` imports the built package from `dist/` — checks the public API.
+- Lint + build without errors (tsc --noEmit).
+- Definition of done: {build and all tests green}.
 
 ## Dependencies
-- {прямые зависимости}.
+- {direct dependencies}.
