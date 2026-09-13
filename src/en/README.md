@@ -46,6 +46,10 @@ Trivia goes outside the loop — you don't open a story for a typo.
 `/architect` — outside the loop: an application skeleton, i.e. a file hierarchy
 with `AGENTS.md` at every level (or a ready-made template from `src/en/templates/`).
 
+`/story-prune` — outside the loop: removes stale stories — entries whose behavior
+is no longer in the code and which newer entries superseded; the intention stays
+in git.
+
 ## Why this way
 
 A permanent spec kept next to the code forever will sooner or later stop being
@@ -67,6 +71,7 @@ decided by the level.
   `stories/`.
 - `src/en/commands/do.md` — the command that implements a story.
 - `src/en/commands/architect.md` — the command that builds the skeleton.
+- `src/en/commands/story-prune.md` — the command that removes stale stories.
 - `src/en/LEVEL.md` — the level format (`AGENTS.md` in the project): boundaries,
   patterns, `Verification`.
 - `src/en/templates/` — ready-made architecture skeletons for `/architect`
