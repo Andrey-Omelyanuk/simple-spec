@@ -18,7 +18,7 @@ head_() { echo; echo "$1"; }
 
 # Reference forms install.sh must rewrite. One surviving an install is a broken
 # path in a foreign project.
-rewritten='src/LEVEL\.md|src/AGENTS\.md|src/templates|src/commands'
+rewritten='src/(en/)?(LEVEL\.md|templates|commands)|src/AGENTS\.md'
 
 # Checks an install of a language: the command set and intact references.
 check_install() {
@@ -38,7 +38,7 @@ $survived"
 head_ "1. Default project install (en)"
 proj="$TMP/proj"; mkdir -p "$proj"
 if "$SRC/install.sh" "$proj" >/dev/null; then ok "install passed"; else bad "install failed"; fi
-check_install en "$proj" "$SRC/src/commands"
+check_install en "$proj" "$SRC/src/en/commands"
 grep -q '^lang en$' "$proj/.opencode/.installed" && ok "en: manifest keeps the language" || bad "en: manifest does not keep the language"
 grep -q 'What goes where' "$proj/.opencode/README.md" && ok "en: README is English" || bad "en: README is not English"
 [ -e "$proj/.opencode/AGENTS.md" ] && bad "the kit is named AGENTS.md — collides with the level file" || ok "the kit does not take the AGENTS.md name"
@@ -79,18 +79,18 @@ for d in .. /abs a/../b; do
   if "$SRC/install.sh" "$proj" "$d" >/dev/null 2>&1; then bad "dir=$d accepted"; else ok "dir=$d rejected"; fi
 done
 
-head_ "6. Languages mirror src/"
-src_cmds="$(cd "$SRC/src/commands" && ls *.md | sort)"
-src_tpls="$(cd "$SRC/src/templates" && ls -d */ | sort)"
+head_ "6. Languages mirror src/en/"
+src_cmds="$(cd "$SRC/src/en/commands" && ls *.md | sort)"
+src_tpls="$(cd "$SRC/src/en/templates" && ls -d */ | sort)"
 langs=""
 for d in "$SRC"/src/*/; do
   [ -f "$d/LEVEL.md" ] || continue
   lang="$(basename "$d")"
   langs="$langs $lang"
   cmds="$(cd "$d/commands" && ls *.md 2>/dev/null | sort)"
-  [ "$src_cmds" = "$cmds" ] && ok "$lang: command set mirrors src/" || bad "$lang: commands differ: [$cmds] instead of [$src_cmds]"
+  [ "$src_cmds" = "$cmds" ] && ok "$lang: command set mirrors src/en/" || bad "$lang: commands differ: [$cmds] instead of [$src_cmds]"
   tpls="$(cd "$d/templates" && ls -d */ 2>/dev/null | sort)"
-  [ "$src_tpls" = "$tpls" ] && ok "$lang: template set mirrors src/" || bad "$lang: templates differ"
+  [ "$src_tpls" = "$tpls" ] && ok "$lang: template set mirrors src/en/" || bad "$lang: templates differ"
   for f in LEVEL.md README.md; do
     [ -e "$d/$f" ] && ok "$lang: $f in place" || bad "$lang: no $f"
   done

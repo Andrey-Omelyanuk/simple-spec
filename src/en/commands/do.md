@@ -7,7 +7,7 @@ argument-hint: <story-name>
 
 You implement the story: `$ARGUMENTS`
 
-The story format is in `src/commands/story.md`.
+The story format is in `src/en/commands/story.md`.
 
 ## Flow
 
@@ -33,7 +33,7 @@ The story format is in `src/commands/story.md`.
    - an item cancels behavior covered by a test of a past story — rephrase or
      remove that test in a separate commit; in the message name what was cancelled
      and why;
-   - a new level is needed — an `AGENTS.md` per the `src/LEVEL.md` template, on
+   - a new level is needed — an `AGENTS.md` per the `src/en/LEVEL.md` template, on
      the same branch.
 5. **Prove it**: run the level's tests and show the output — a diff without a run
    is not a result. Write out the projection: one line per item,

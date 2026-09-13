@@ -2,7 +2,7 @@
 
 Монорепо: backend-монолит на Django, SPA-клиент, инфраструктура. Каждый сервис и
 каждое Django-приложение — отдельный уровень со своим `AGENTS.md`. Формат уровня
-— `src/LEVEL.md`.
+— `src/en/LEVEL.md`.
 
 ## Схема уровней
 
@@ -21,7 +21,7 @@ Backend и его `apps/*` обязательны. Остальные серви
 
 ## Как раскрывать
 
-1. `/architect` читает `src/templates/web-app/` и `src/LEVEL.md`.
+1. `/architect` читает `src/en/templates/web-app/` и `src/en/LEVEL.md`.
 2. По `root.md` — корневой `AGENTS.md`: имя проекта, границы монорепо, схема
    папок, как запускается и проверяется целое.
 3. По `django-service.md` — `AGENTS.md` backend-сервиса: стек, список `apps/*`,

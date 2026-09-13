@@ -2,7 +2,7 @@
 
 A monorepo: a Django backend monolith, an SPA client, infrastructure. Every
 service and every Django app is a separate level with its own `AGENTS.md`. The
-level format is `src/LEVEL.md`.
+level format is `src/en/LEVEL.md`.
 
 ## Level scheme
 
@@ -21,7 +21,7 @@ Another Django service is built with the same `django-service.md`.
 
 ## How to expand
 
-1. `/architect` reads `src/templates/web-app/` and `src/LEVEL.md`.
+1. `/architect` reads `src/en/templates/web-app/` and `src/en/LEVEL.md`.
 2. Per `root.md` — the root `AGENTS.md`: project name, monorepo boundaries, folder
    scheme, how the whole is run and checked.
 3. Per `django-service.md` — the backend service's `AGENTS.md`: stack, the list of

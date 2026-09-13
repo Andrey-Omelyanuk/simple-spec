@@ -6,5 +6,5 @@ lives in the code and tests. The kit is read by an agent in a foreign project, s
 it is translated. The language is chosen at install time with `-l` (default `en`)
 and remembered by the manifest.
 
-- English — [`src/README.md`](src/README.md)
+- English — [`src/en/README.md`](src/en/README.md)
 - Русский — [`src/ru/README.md`](src/ru/README.md)

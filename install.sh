@@ -5,9 +5,9 @@
 #   ./install.sh <path-to-project> [service-folder] [-l language]   # into a project
 #   ./install.sh --global [opencode|claude|cursor] [-l language]    # global for the user
 #
-# The language is the -l flag (default en): texts come from src/ for en and from
-# src/<language>/ for the rest. The installed language is written to the manifest
-# and kept by a re-run without the flag; -l switches the language.
+# The language is the -l flag (default en): texts come from src/<language>/.
+# The installed language is written to the manifest and kept by a re-run without
+# the flag; -l switches the language.
 #
 # Into a project: the service folder defaults to .opencode, the kit lies flat in
 # it, references in the commands are project-relative.
@@ -104,19 +104,17 @@ if [ -z "$lang" ] && [ -f "$manifest" ]; then
   lang="$(grep '^lang ' "$manifest" | awk '{print $2}' || true)"
 fi
 lang="${lang:-en}"
-case "$lang" in
-  en) src_root="$SRC/src" ;;
-  *)  [ -d "$SRC/src/$lang" ] || die "No translation for language: $lang"; src_root="$SRC/src/$lang" ;;
-esac
+[ -d "$SRC/src/$lang" ] || die "No translation for language: $lang"
+src_root="$SRC/src/$lang"
 
 # Escapes what sed would read as syntax: separator #, & and \.
 esc() { printf '%s' "$1" | sed 's/[\\&#]/\\&/g'; }
 
 # Rewrites kit and command references from repository paths to the target ones.
 rewrite() {
-  sed -e "s#src/LEVEL.md#$(esc "$ref")/LEVEL.md#g" \
-      -e "s#src/templates#$(esc "$ref")/templates#g" \
-      -e "s#src/commands#$(esc "$cmd_ref")#g"
+  sed -e "s#src/en/LEVEL.md#$(esc "$ref")/LEVEL.md#g" \
+      -e "s#src/en/templates#$(esc "$ref")/templates#g" \
+      -e "s#src/en/commands#$(esc "$cmd_ref")#g"
 }
 
 # What this install ships. From here — the manifest and the output lines.

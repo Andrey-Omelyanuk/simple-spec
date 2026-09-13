@@ -44,7 +44,7 @@ code and tests for the story's behavior items; `<story-name>` is a file from
 Trivia goes outside the loop — you don't open a story for a typo.
 
 `/architect` — outside the loop: an application skeleton, i.e. a file hierarchy
-with `AGENTS.md` at every level (or a ready-made template from `src/templates/`).
+with `AGENTS.md` at every level (or a ready-made template from `src/en/templates/`).
 
 ## Why this way
 
@@ -63,13 +63,13 @@ decided by the level.
 
 ## What goes where
 
-- `src/commands/story.md` — the story: the command and the format of entries in
+- `src/en/commands/story.md` — the story: the command and the format of entries in
   `stories/`.
-- `src/commands/do.md` — the command that implements a story.
-- `src/commands/architect.md` — the command that builds the skeleton.
-- `src/LEVEL.md` — the level format (`AGENTS.md` in the project): boundaries,
+- `src/en/commands/do.md` — the command that implements a story.
+- `src/en/commands/architect.md` — the command that builds the skeleton.
+- `src/en/LEVEL.md` — the level format (`AGENTS.md` in the project): boundaries,
   patterns, `Verification`.
-- `src/templates/` — ready-made architecture skeletons for `/architect`
+- `src/en/templates/` — ready-made architecture skeletons for `/architect`
   (e.g. `web-app/`).
 
 ## Installation

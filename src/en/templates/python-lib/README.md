@@ -1,7 +1,7 @@
 # Python Library
 
 A reusable Python package with a crisp public API. One level — the repository
-root (src-layout). The level format is `src/LEVEL.md`.
+root (src-layout). The level format is `src/en/LEVEL.md`.
 
 ## Scheme
 
@@ -19,7 +19,7 @@ the root `AGENTS.md`.
 
 ## How to expand
 
-1. `/architect` reads `src/templates/python-lib/` and `src/LEVEL.md`.
+1. `/architect` reads `src/en/templates/python-lib/` and `src/en/LEVEL.md`.
 2. Per `root.md` — the root `AGENTS.md`: what the package abstracts, what the
    public API is (that's `Boundaries` — everything else is "does not do"), the
    stack, the way of checking (`pytest`, `testpaths`).

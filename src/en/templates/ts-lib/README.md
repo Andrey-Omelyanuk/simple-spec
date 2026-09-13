@@ -1,7 +1,7 @@
 # TypeScript Library
 
 A reusable TypeScript library with a crisp public API. One level — the repository
-root. The level format is `src/LEVEL.md`.
+root. The level format is `src/en/LEVEL.md`.
 
 ## Scheme
 
@@ -20,7 +20,7 @@ of the root `AGENTS.md`.
 
 ## How to expand
 
-1. `/architect` reads `src/templates/ts-lib/` and `src/LEVEL.md`.
+1. `/architect` reads `src/en/templates/ts-lib/` and `src/en/LEVEL.md`.
 2. Per `root.md` — the root `AGENTS.md`: what the library abstracts, what the
    public API is (that's `Boundaries` — everything else is "does not do"), the
    stack, the way of checking (unit + e2e).
