@@ -2,8 +2,8 @@
 # Installs Simple Spec commands and the kit — into a project or globally for the
 # user.
 #
-#   ./install.sh <path-to-project> [service-folder] [-l language]   # into a project
-#   ./install.sh --global [opencode|claude|cursor] [-l language]    # global for the user
+#   ./install.sh <path-to-project> [service-folder] [-l language]    # into a project
+#   ./install.sh --global [opencode|claude|cursor|zed] [-l language] # global for the user
 #
 # The language is the -l flag (default en): texts come from src/<language>/.
 # The installed language is written to the manifest and kept by a re-run without
@@ -14,8 +14,10 @@
 #
 # Global: commands go to the tool's folder (opencode →
 # ~/.config/opencode/command, claude → ~/.claude/commands, cursor →
-# ~/.cursor/commands), the kit — into simple-spec/ next to it, references in the
-# commands are rewritten to its absolute path.
+# ~/.cursor/commands, zed → ~/.agents/skills), the kit — into simple-spec/ next to
+# it, references in the commands are rewritten to its absolute path. Zed has no
+# file commands, only skills: each command becomes <name>/SKILL.md, invoked as
+# /<name>.
 #
 # The target project's stories/ is not touched: /story creates it at the root.
 #
@@ -34,7 +36,7 @@ usage() {
   cat >&2 <<'U'
 Usage:
   ./install.sh <path-to-project> [service-folder=.opencode] [-l language=en]
-  ./install.sh --global [opencode|claude|cursor] [-l language=en]
+  ./install.sh --global [opencode|claude|cursor|zed] [-l language=en]
 U
   exit 2
 }
@@ -61,7 +63,8 @@ if [ "${1:-}" = "--global" ] || [ "${1:-}" = "-g" ]; then
     opencode) base="$HOME/.config/opencode"; cmd_sub="command"  ;;
     claude)   base="$HOME/.claude";          cmd_sub="commands" ;;
     cursor)   base="$HOME/.cursor";          cmd_sub="commands" ;;
-    *) die "Unknown tool: $tool (expected opencode, claude or cursor)" ;;
+    zed)      base="$HOME/.agents";          cmd_sub="skills"   ;;
+    *) die "Unknown tool: $tool (expected opencode, claude, cursor or zed)" ;;
   esac
   kit="$base/simple-spec"    # kit
   cmd_dest="$base/$cmd_sub"  # commands
@@ -110,25 +113,44 @@ src_root="$SRC/src/$lang"
 # Escapes what sed would read as syntax: separator #, & and \.
 esc() { printf '%s' "$1" | sed 's/[\\&#]/\\&/g'; }
 
+# Command layout: <name>.md, or a skill folder <name>/SKILL.md.
+if [ "$cmd_sub" = skills ]; then cmd_ext="/SKILL.md"; else cmd_ext=".md"; fi
+
 # Rewrites kit and command references from repository paths to the target ones.
 rewrite() {
   sed -e "s#src/en/LEVEL.md#$(esc "$ref")/LEVEL.md#g" \
       -e "s#src/en/templates#$(esc "$ref")/templates#g" \
+      -e "s#src/en/commands/\([a-z0-9-]*\)\.md#$(esc "$cmd_ref")/\1$cmd_ext#g" \
       -e "s#src/en/commands#$(esc "$cmd_ref")#g"
 }
 
+# A skill is the command under skill frontmatter: a name and manual invocation
+# only — a mode is entered by the user, not picked by the agent. argument-hint is
+# not part of the skill format.
+layout() {
+  [ "$cmd_sub" = skills ] || { cat; return; }
+  awk -v n="$1" '
+    NR == 1 && /^---$/      { print; print "name: " n; fm = 1; next }
+    fm && /^---$/           { print "disable-model-invocation: true"; print; fm = 0; next }
+    fm && /^argument-hint:/ { next }
+    { print }'
+}
+
 # What this install ships. From here — the manifest and the output lines.
+# cmd_files are the entries of the commands folder: files, or skill folders.
 kit_files=(LEVEL.md README.md templates)
-cmd_files=()
-for f in "$src_root"/commands/*.md; do cmd_files+=("$(basename "$f")"); done
+cmd_names=()
+for f in "$src_root"/commands/*.md; do cmd_names+=("$(basename "$f" .md)"); done
+if [ "$cmd_sub" = skills ]; then cmd_files=("${cmd_names[@]}"); else cmd_files=("${cmd_names[@]/%/.md}"); fi
 
 # Kit.
 rewrite < "$src_root/LEVEL.md" > "$kit/LEVEL.md"
 rewrite < "$src_root/README.md" > "$kit/README.md"
 
 # Commands.
-for f in "$src_root"/commands/*.md; do
-  rewrite < "$f" > "$cmd_dest/$(basename "$f")"
+for n in "${cmd_names[@]}"; do
+  mkdir -p "$(dirname "$cmd_dest/$n$cmd_ext")"
+  rewrite < "$src_root/commands/$n.md" | layout "$n" > "$cmd_dest/$n$cmd_ext"
 done
 
 # Architecture templates.
@@ -153,9 +175,11 @@ rm -f "$cmd_dest/object.md"      "$cmd_dest/object-check.md" \
 # Previous install: remove what it installed and this one no longer does.
 if [ -f "$manifest" ]; then
   while read -r kind name; do
+    # An empty name would make the path the folder itself — the user's skills.
+    [ -n "$name" ] || continue
     case "$kind" in
-      kit) has "$name" "${kit_files[@]}" || rm -rf "$kit/$name"    ;;
-      cmd) has "$name" "${cmd_files[@]}" || rm -f  "$cmd_dest/$name" ;;
+      kit) has "$name" "${kit_files[@]}" || rm -rf "$kit/$name"      ;;
+      cmd) has "$name" "${cmd_files[@]}" || rm -rf "$cmd_dest/$name" ;;
     esac
   done < <(grep -v '^#' "$manifest" || true)
 fi
@@ -168,9 +192,9 @@ version="$(git -C "$SRC" rev-parse --short HEAD 2>/dev/null || echo unknown)"
   printf 'cmd %s\n' "${cmd_files[@]}"
 } > "$manifest"
 
-cmd_list="$(printf '%s,' "${cmd_files[@]%.md}")"; cmd_list="{${cmd_list%,}}.md"
-kit_list="$(printf '%s, ' "${kit_files[@]}")";    kit_list="${kit_list%, }"
-slashes="$(printf '/%s ' "${cmd_files[@]%.md}")"
+cmd_list="$(printf '%s,' "${cmd_names[@]}")"; cmd_list="{${cmd_list%,}}$cmd_ext"
+kit_list="$(printf '%s, ' "${kit_files[@]}")"; kit_list="${kit_list%, }"
+slashes="$(printf '/%s ' "${cmd_names[@]}")"
 
 if [ "$mode" = "project" ]; then
   echo "✓ Installed into project: $kit/ (simple-spec $version)"

@@ -130,7 +130,33 @@ grep -q "$home/.claude/simple-spec/LEVEL.md" "$home/.claude/commands/architect.m
 grep -q "$home/.claude/commands/story.md" "$home/.claude/simple-spec/README.md" \
   && ok "README index points at the commands folder, not the kit" || bad "README does not know where the commands are"
 
-head_ "10. Unknown tool and empty call"
+head_ "10. Zed: a command is a skill folder"
+home="$TMP/zed"; sk="$home/.agents/skills"; mkdir -p "$home"
+if HOME="$home" "$SRC/install.sh" --global zed >/dev/null 2>&1; then ok "install passed"; else bad "install failed"; fi
+for n in $(cd "$SRC/src/en/commands" && ls *.md | sed 's/\.md$//'); do
+  f="$sk/$n/SKILL.md"
+  [ -f "$f" ] || { bad "$n: no $n/SKILL.md"; continue; }
+  # Frontmatter is the first block; a skill without a matching name does not load.
+  fm="$(sed -n '2,/^---$/p' "$f")"
+  grep -qx "name: $n" <<< "$fm" && grep -qx 'disable-model-invocation: true' <<< "$fm" \
+    && ! grep -q '^argument-hint:' <<< "$fm" && ok "$n: skill frontmatter" || bad "$n: frontmatter is not a skill's"
+done
+[ -z "$(find "$sk" -maxdepth 1 -name '*.md')" ] && ok "no flat commands in skills/" || bad "flat .md in skills/"
+survived="$(grep -rEn "$rewritten" "$home" || true)"
+[ -z "$survived" ] && ok "no src/ form survived" || bad "src/ forms survived:
+$survived"
+paths="$(grep -rhoE "$home/[A-Za-z0-9_./-]+" "$home" | sed 's/\.$//' | sort -u)"
+grep -q "$sk/story/SKILL.md" <<< "$paths" && ok "README index points at the skills" || bad "README does not know where the skills are"
+while IFS= read -r p; do
+  [ -e "$p" ] && ok "${p#$home/}" || bad "${p#$home/} — mentioned, but does not exist"
+done <<< "$paths"
+mkdir -p "$sk/ghost" "$sk/mine" && echo "cmd ghost" >> "$home/.agents/simple-spec/.installed"
+echo "cmd " >> "$home/.agents/simple-spec/.installed"
+HOME="$home" "$SRC/install.sh" --global zed >/dev/null
+[ -e "$sk/ghost" ] && bad "a gone skill remained" || ok "a gone skill removed"
+[ -e "$sk/mine" ] && ok "the user's own skill untouched" || bad "the user's own skill deleted"
+
+head_ "11. Unknown tool and empty call"
 if HOME="$home" "$SRC/install.sh" --global nope >/dev/null 2>&1; then bad "unknown tool accepted"; else ok "unknown tool rejected"; fi
 if "$SRC/install.sh" >/dev/null 2>&1; then bad "call without arguments accepted"; else ok "call without arguments rejected"; fi
 

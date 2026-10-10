@@ -1,8 +1,8 @@
 # Simple Spec
 
-A command set for an AI agent (opencode, Claude Code, Cursor). Understanding of a
-task is captured as a **story**, the story is implemented as **code**, and the
-spec of what was built lives in test names. A loop of two commands: `/story` →
+A command set for an AI agent (opencode, Claude Code, Cursor, Zed). Understanding
+of a task is captured as a **story**, the story is implemented as **code**, and
+the spec of what was built lives in test names. A loop of two commands: `/story` →
 `/do`.
 
 ## Model
@@ -83,8 +83,8 @@ decided by the level.
 globally for the user:
 
 ```
-./install.sh <path-to-project> [service-folder] [-l language]   # default en
-./install.sh --global [opencode|claude|cursor] [-l language]     # global for the user
+./install.sh <path-to-project> [service-folder] [-l language]     # default en
+./install.sh --global [opencode|claude|cursor|zed] [-l language]   # global for the user
 ```
 
 The language of the texts is the `-l` flag (default `en`; Russian — `-l ru`); the
